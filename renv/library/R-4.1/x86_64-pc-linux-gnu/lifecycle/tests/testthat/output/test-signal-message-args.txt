@@ -1,0 +1,40 @@
+
+
+Deprecated argument
+===================
+
+The `quux` argument of `foo()` was deprecated in base 1.0.0 and is now defunct.
+
+
+Deprecated argument with function replacement
+=============================================
+
+The `quux` argument of `foo()` was deprecated in base 1.0.0 and is now defunct.
+Please use `bar()` instead.
+
+
+Deprecated argument with argument replacement (same function)
+=============================================================
+
+The `quux` argument of `foo()` was deprecated in base 1.0.0 and is now defunct.
+Please use the `foofy` argument instead.
+
+
+Deprecated argument with argument replacement (different function)
+==================================================================
+
+The `quux` argument of `foo()` was deprecated in base 1.0.0 and is now defunct.
+Please use the `foofy` argument of `bar()` instead.
+
+
+Deprecated argument with argument replacement (different function, different package)
+=====================================================================================
+
+The `quux` argument of `foo()` was deprecated in aaa 1.0.0 and is now defunct.
+Please use the `foofy` argument of `zzz::bar()` instead.
+
+
+Deprecated argument with reason
+===============================
+
+The `quux` argument of `foo()` can't be a baz as of aaa 1.0.0.

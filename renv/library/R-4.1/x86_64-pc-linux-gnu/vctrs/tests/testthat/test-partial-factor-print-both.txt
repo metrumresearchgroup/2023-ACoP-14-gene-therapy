@@ -1,0 +1,4 @@
+partial_factor<
+  bf275 {partial}
+  fd1ad
+>

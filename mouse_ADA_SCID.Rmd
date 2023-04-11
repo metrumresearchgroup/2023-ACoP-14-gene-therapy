@@ -1,0 +1,163 @@
+---
+title: "mouse_ADA_SCID"
+author: "Yuezhe Li"
+date: "2/6/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=6, fig.height=3) 
+```
+
+
+```{r}
+## Set up the model
+rm(list = ls())
+gc()
+library(tidyverse)
+library(mrgsolve)
+library(gridExtra)
+library(grid)
+
+setwd(dirname(rstudioapi::getSourceEditorContext()$path)) # set the working directory at the folder that contains the script
+
+modo <- mread("model/mouse_erythrocytes_Hb_lymphoid_myeloid") 
+```
+
+# Model adaption
+
+Adapt 3-month mouse to 14-18 post-natal mouse
+```{r}
+# tuning MPP -> CLP rate
+exidata1 <- expand.idata(alphaMPP2CLP = c(0.03, 0.045, 0.06, 0.075, 0.09, 0.105, 0.12))
+sim1 <- modo %>% init(LT0 = 1200) %>% idata_set(exidata1) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+tmp1 = merge(x = exidata1, y = sim1, by = "ID", all.x = TRUE)
+
+plot1l <- ggplot(data = tmp1) + 
+  geom_point(aes(x = alphaMPP2CLP, y = SP4)) +
+  labs(y = 'CD4+ thymocyte', x = 'MPP->CLP rate') +
+  geom_hline(yintercept= 8e5, linetype="dashed", color = "red") + theme_bw()
+
+plot1r <- ggplot(data = tmp1) + 
+  geom_point(aes(x = alphaMPP2CLP, y = Bspleen)) +
+  labs(y = 'splenic B cells', x = 'MPP->CLP rate') +
+  geom_hline(yintercept= 25e6, linetype="dashed", color = "red") + theme_bw()
+
+png('img/mouse_15day_ada_scid.png', width = 8, height = 3, units = 'in', res = 300)
+grid.arrange(plot1l, plot1r, ncol = 2)
+dev.off()
+```
+
+# ADA mouse adaption
+
+## Double positive T cell death rate
+
+```{r}
+# tuning DP death rate
+exidata0 <- expand.idata(delta_dp = c(0, 1e-4, 1e-3, 0.01, 0.1, 1, 2, 5, 10))
+
+sim0 <- modo %>% param(alphaMPP2CLP = 0.09) %>% init(LT0 = 1200) %>% idata_set(exidata0) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+tmp0 = merge(x = exidata0, y = sim0, by = "ID", all.x = TRUE)
+
+plot2 = ggplot(data = tmp0) + 
+  geom_point(aes(x = delta_dp, y = DN/thymocyte * 100)) +
+  labs(y = 'DN percentage (%)', x = 'DP death rate') +
+  geom_hline(yintercept=20, linetype="dashed", color = "red") +
+  scale_x_continuous(trans='log10') + theme_bw()
+
+png('img/mouse_dpdeathscan.png', width = 10, height = 3, units = 'in', res = 300)
+print(plot2)
+
+# check steady state
+# sim_ss <- modo %>% init(LT0 = 1200) %>% param(alphaMPP2CLP = 0.09, delta_dp = 2) %>% mrgsim(end = 1500) %>% filter(time == 1500) 
+# sim_ss0 <- modo %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500) 
+```
+
+## splenic B cell death rate
+
+```{r}
+# tuning DP death rate
+exidata2 <- expand.idata(epsilon_spl = c(0.032, 0.06, 0.12, 0.15, 0.18, 0.21, 0.24, 0.48))
+
+sim2 <- modo %>% param(alphaMPP2CLP = 0.09, delta_dp = 2) %>% init(LT0 = 1200) %>% idata_set(exidata2) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+
+tmp2 = merge(x = exidata2, y = sim2, by = "ID", all.x = TRUE)
+
+plot22 = ggplot(data = tmp2) + 
+  geom_point(aes(x = epsilon_spl, y = BMspl0)) +
+  labs(x = 'splenic mature B cell death rate', y = 'splenic B cell count') +
+  geom_hline(yintercept=4e6, linetype="dashed", color = "red") +
+  scale_x_continuous(trans='log10') + 
+  scale_y_continuous(breaks = c(1e6, 5e6, 10e6, 15e6, 19e6), labels = c('1M', '5M', '10M', '15M', '19M')) + theme_bw()
+
+ggsave('img/mouse_BMspl_dscan.png',plot = plot22, width = 10, height = 3, units = 'in', dpi = 300)
+
+# check steady state
+# sim_ss <- modo %>% init(LT0 = 1200) %>% param(alphaMPP2CLP = 0.09, delta_dp = 2,epsilon_spl = 0.15) %>% mrgsim(end = 1500) %>% filter(time == 1500) 
+# sim_ss0 <- modo %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500) 
+```
+
+
+## Gene therapy treatment
+
+```{r}
+# Experiment based on Carbonaro et al., 2012
+## https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3488883/
+
+# Since mouse is on ERT before treatment, and Morreti et al., 2021 suggested enzyme replacement therapy achieves good efficacy, we use normal mouse parameters
+# Morreti et al., 2021
+## https://www.nature.com/articles/s41598-021-02572-w
+
+# simulated to steady state
+sim_ss0 <- modo %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500) %>% select(-c(ID, time))
+
+
+# VCN data from mouse in Carbonaro et al., 2012
+# vcn = c(2.1, 0.97, 0.12, 0.48, 1.26)
+# mean_vcn = 0.99, sd_vcn = 0.76
+
+# load in observed dynamics data
+obs_bm <- data.frame(time = c(2,4,10, 16), vcn = c(0.1, 0.02, 0.08, 0.02))
+obs_thymus <- data.frame(time = c(2,4,10, 16), vcn = c(0.13, 0.01, 0.14, 0.03))
+
+# check fraction of each population
+bmss <- sim_ss0 %>% select(LT0, ST, MPP, CMP, GMP, BcellBM, CLP0)
+print( bmss/ sum(bmss) ) # check the fraction of steady state progenitor ratio
+
+# cell transplant
+BMcell = 5e6  # data from Carbonaro et al., 2012
+LTfraction = 2e-5
+STfraction = 1e-4
+MPPfraction = 0.01
+CMPfraction = 0.1
+GMPfraction = 0.1
+CLPfraction = 1e-3
+
+conditioning_strength = 0.7
+
+mod2 <- modo %>% init( sim_ss0[1:20] * conditioning_strength ) %>%  # erythroid progenitor conditioning
+        init(CLP0 = sim_ss0$CLP0 * conditioning_strength) %>% # lymph progenitor conditioning
+        init(Boe0 = sim_ss0$Boe0 * conditioning_strength) %>% 
+        init(Bi0 = sim_ss0$Bi0 * conditioning_strength) %>% 
+        init(sim_ss0[71:126] * conditioning_strength) %>% # B cell and T cell progenitors outside bone marrow
+        init(LT1 = BMcell * LTfraction) %>%
+        init(ST12 = BMcell * STfraction) %>%
+        init(MPP12 = BMcell * MPPfraction) %>%
+        init(CMP12 = BMcell * CMPfraction) %>%
+        init(GMP12 = BMcell * GMPfraction) %>%
+        init(CLP1 = BMcell * CLPfraction) 
+
+simgt <- mod2 %>% mrgsim(end = 120) %>% as_tibble() %>% filter(time > 2) # simulate for 4 month after transplant
+
+ggplot(data = simgt) + 
+  geom_line(aes(x = time/7, y = BMtrans/BM * 0.99, color = 'VCN BM')) +
+  geom_line(aes(x = time/7, y = thytrans/thymocyte * 0.99, color = 'VCN thymocyte')) +
+  geom_point(data = obs_bm, aes(x = time, y = vcn, color = 'VCN BM, obs')) + 
+  geom_point(data = obs_thymus, aes(x = time, y = vcn, color = 'VCN thymus, obs')) + 
+  labs(y = 'avg VCN', x = 'time (weeks)', color = 'organ') + theme_bw() + scale_y_continuous(trans="log10", limits = c(1e-4, 1)) 
+
+ggsave('img/mouse_adascidgtsimul.png', width = 10, height = 3, units = 'in', dpi = 300)
+
+#ssgt <- simgt %>% tail(n=1) %>% mutate(vcnbm = BMtrans/BM * 0.99, vcndp = DPtrans/DP * 0.99) %>% select(vcnbm, vcndp) 
+```

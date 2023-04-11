@@ -1,0 +1,278 @@
+
+# set up
+
+```{r}
+rm(list = ls())
+setwd(dirname(rstudioapi::getSourceEditorContext()$path)) # set the working directory at the folder that contains the script
+
+# load required packages
+library(tidyverse)
+library(mrgsolve)
+library(gridExtra)
+library(grid)
+getwd()
+```
+
+# Conditioning functin
+
+```{r}
+RadioConditioning <- function(progenitor_conditioning_strength = 0.1, b_conditioning_strength = 0.999, t_conditioning_strength = 0.1, gm_conditioning_strength = 0.05, mod = modo, returnSteadyState = FALSE)
+{
+  sim_pre <- mod %>% init(LT0 = 1)  %>%  mrgsim(end = 30 * 50, delta = 0.5) %>% 
+           as_tibble() %>% tail(n=1) %>% select(-c(ID, time)) 
+
+  if (returnSteadyState)
+  {
+    return(sim_pre)
+  }
+  else
+  {
+      # steady state of sickle cell patients
+      mod2 <- mod %>% init(sim_pre)
+
+      # myeloablative preconditioning
+      ratioleft = 1-progenitor_conditioning_strength
+      
+      mod3 <- mod2 %>% init(LT0 = sim_pre$LT0 * ratioleft, 
+                            ST01 = sim_pre$ST01 * ratioleft, 
+                            ST02 = sim_pre$ST02 * ratioleft, 
+                            MPP01 = sim_pre$MPP01 * ratioleft, 
+                            MPP02 = sim_pre$MPP02 * ratioleft, 
+                            CMP01 = sim_pre$CMP01 * ratioleft, 
+                            CMP02 = sim_pre$CMP02 * ratioleft, 
+                            BFUE01 = sim_pre$BFUE01 * ratioleft, 
+                            BFUE02 = sim_pre$BFUE02 * ratioleft, 
+                            CFUE01 = sim_pre$CFUE01 * ratioleft, 
+                            CFUE02 = sim_pre$CFUE02 * ratioleft) 
+      
+      if("CLP0" %in% colnames(sim_pre))
+      {
+        mod3 <-mod3 %>% init(CLP0 = sim_pre$CLP0 * ratioleft) 
+      } 
+      
+      if(("Boe0" %in% colnames(sim_pre)) & ("Boe1" %in% colnames(sim_pre)))
+      {
+        mod3 <-mod3 %>% init(Boe0 = sim_pre$Boe0 * ratioleft, 
+                             Bi0 = sim_pre$Bi0 * ratioleft, 
+                             Bt0 = sim_pre$Bt0 * (1-b_conditioning_strength), 
+                             BMrec0 = sim_pre$BMrec0 * (1-b_conditioning_strength), 
+                             BMspl0 = sim_pre$BMspl0 * (1-b_conditioning_strength)
+                             ) 
+      } 
+
+      if("N00" %in% colnames(sim_pre))
+      {
+        mod3 <-mod3 %>% init(N00 = sim_pre$N00 * (1-t_conditioning_strength), 
+                             N10 = sim_pre$N10 * (1-t_conditioning_strength), 
+                             N20 = sim_pre$N20 * (1-t_conditioning_strength),
+                             N30 = sim_pre$N30 * (1-t_conditioning_strength), 
+                             N40 = sim_pre$N40 * (1-t_conditioning_strength), 
+                             P00 = sim_pre$P00 * (1-t_conditioning_strength), 
+                             P10 = sim_pre$P10 * (1-t_conditioning_strength), 
+                             P20 = sim_pre$P20 * (1-t_conditioning_strength), 
+                             P30 = sim_pre$P30 * (1-t_conditioning_strength), 
+                             P40 = sim_pre$P40 * (1-t_conditioning_strength), 
+                             P50 = sim_pre$P50 * (1-t_conditioning_strength), 
+                             P60 = sim_pre$P60 * (1-t_conditioning_strength), 
+                             P70 = sim_pre$P70 * (1-t_conditioning_strength), 
+                             S800 = sim_pre$S800 * (1-t_conditioning_strength), 
+                             S810 = sim_pre$S810 * (1-t_conditioning_strength), 
+                             S820 = sim_pre$S820 * (1-t_conditioning_strength), 
+                             S400 = sim_pre$S400 * (1-t_conditioning_strength), 
+                             S410 = sim_pre$S410 * (1-t_conditioning_strength), 
+                             S420 = sim_pre$S420 * (1-t_conditioning_strength), 
+                             cd4rec0 = sim_pre$cd4rec0 * (1-t_conditioning_strength), 
+                             cd8rec0 = sim_pre$cd8rec0 * (1-t_conditioning_strength), 
+                             cd4lym0 = sim_pre$cd4lym0 * (1-t_conditioning_strength), 
+                             cd8lym0 = sim_pre$cd8lym0 * (1-t_conditioning_strength)
+                             ) 
+      }
+
+      if("GMP01" %in% colnames(sim_pre))
+      {
+        mod3 <-mod3 %>% init(GMP01 = sim_pre$GMP01 * ratioleft) %>% init(GMP02 = sim_pre$GMP02 * ratioleft) 
+      }
+
+      if("GM0" %in% colnames(sim_pre))
+      {
+        mod3 <-mod3 %>% init(GM0 = sim_pre$GM0 * (1-gm_conditioning_strength)) 
+      }
+
+      return( mod3 )
+  }
+}
+
+```
+
+# human to mouse, blood cell + Hb, model validation
+
+```{r}
+# read data from Boyer et al., 2019
+hsct_rbc <- read.csv('data/Boyer2019_1M_HSC.csv', header = TRUE) %>% filter(cell_type == "RBC")
+hsct_rbc[,4] <- read.csv('data/Boyer2019_1M_HSC.csv', header = TRUE) %>% filter(cell_type == "RBClower") %>% select(cell_count) 
+colnames(hsct_rbc)[4] <- "RBC_lower"
+hsct_rbc$RBC_upper <- hsct_rbc$cell_count + (hsct_rbc$cell_count - hsct_rbc$RBC_lower)
+
+mppt_rbc <- read.csv('data/Boyer2019_1N_MPP.csv', header = TRUE) %>% filter(cell_type == "RBC")
+mppt_rbc[,4] <- read.csv('data/Boyer2019_1N_MPP.csv', header = TRUE) %>% filter(cell_type == "RBClower") %>% select(cell_count) 
+colnames(mppt_rbc)[4] <- "RBC_lower"
+mppt_rbc$RBC_upper <- mppt_rbc$cell_count + (mppt_rbc$cell_count - mppt_rbc$RBC_lower)
+
+modo <- mread("model/mouse_erythrocytes_Hb") %>% param(aST = 32, aBFUE = 16) 
+
+
+# for HSCT, conditioning strength & proliferation rate
+hsct1_2point5 <- RadioConditioning(0.1) %>% init(LT1 = 200) %>% param(rLT = 1/(2.5 * 7)) %>% mrgsim(end = 150) %>% as_tibble() %>% select(-ID)
+hsct5_2point5 <- RadioConditioning(0.5) %>% init(LT1 = 200) %>% param(rLT = 1/(2.5 * 7)) %>% mrgsim(end = 150) %>% as_tibble() %>% select(-ID)
+
+# for MPPT, conditioning and ratio between MPP1 and MPP2
+mppt1_0 = RadioConditioning(0.1) %>% init(MPP11 = 1000, MPP12 = 0) %>% mrgsim(delta = 0.5, end = 150) %>% as_tibble() %>% select(-ID)
+mppt5_0 = RadioConditioning(0.5) %>% init(MPP11 = 1000, MPP12 = 0) %>% mrgsim(delta = 0.5, end = 150) %>% as_tibble() %>% select(-ID)
+
+
+rbc_hsct <- ggplot() + 
+  geom_line(data = hsct1_2point5, aes(x = time, y = RBC1/(2e3), color = '10%' )) + 
+  geom_line(data = hsct5_2point5, aes(x = time, y = RBC1/(2e3), color = '50%' )) + 
+  geom_errorbar(data=hsct_rbc, aes(x=time, ymin=RBC_lower,ymax=RBC_upper), alpha = 0.5) +
+  geom_point(data = hsct_rbc, aes(x = time, y = cell_count, color = 'obs')) + 
+  labs(y = 'RBC count (#/uL)', x = 'time (days)', color = 'conditioning') +
+  theme_bw() + ggtitle('HSC transplant') + 
+  scale_y_continuous(trans='log10',  limits = c(1, 5e6), breaks = c(1, 1e3, 1e6), 
+                     labels = c('1', '1K', '1M')) + theme(legend.position = "bottom")
+
+rbc_mppt <- ggplot() + 
+  geom_line(data = mppt1_0, aes(x = time, y = RBC1/(2e3), color = '10%')) + 
+  geom_line(data = mppt5_0, aes(x = time, y = RBC1/(2e3), color = '50%' )) + 
+  geom_errorbar(data=mppt_rbc, aes(x=time, ymin=RBC_lower,ymax=RBC_upper), alpha = 0.5) +
+  geom_point(data = mppt_rbc, aes(x = time, y = cell_count, color = 'obs')) + 
+  labs(y = 'RBC count (#/uL)', x = 'time (days)', color = 'conditioning') + theme_bw() + 
+  ggtitle('MPP transplant') + theme(legend.position = "bottom")
+
+
+grid.arrange(rbc_hsct, rbc_mppt, ncol = 2)
+
+## save this graph as a validation
+png('img/mouse_RBC_HSCT_MPPT.png', width = 8, height = 3, units = 'in', res = 300)
+grid.arrange(rbc_hsct, rbc_mppt, ncol = 2)
+dev.off()
+```
+# mouse, full model (with myeloid & lymphoid added)
+
+## load observations
+
+```{r}
+hsct_rbc <- read.csv('data/Boyer2019_1M_HSC.csv', header = TRUE) %>% filter(cell_type == "RBC")
+hsct_rbc[,4] <- read.csv('data/Boyer2019_1M_HSC.csv', header = TRUE) %>% filter(cell_type == "RBClower") %>% select(cell_count) 
+colnames(hsct_rbc)[4] <- "RBC_lower"
+hsct_rbc$RBC_upper <- hsct_rbc$cell_count + (hsct_rbc$cell_count - hsct_rbc$RBC_lower)
+
+hsct_B <- read.csv('data/Boyer2019_1A_HSC.csv', header = TRUE) %>% filter(cell_type == "B")
+hsct_B[,4] <- read.csv('data/Boyer2019_1A_HSC.csv', header = TRUE) %>% filter(cell_type == "B_upper") %>% select(cell_fraction) 
+colnames(hsct_B)[4] <- "B_upper"
+hsct_B$B_lower <- hsct_B$cell_fraction - (hsct_B$B_upper - hsct_B$cell_fraction)
+
+hsct_T <- read.csv('data/Boyer2019_1A_HSC.csv', header = TRUE) %>% filter(cell_type == "T")
+hsct_T[,4] <- read.csv('data/Boyer2019_1A_HSC.csv', header = TRUE) %>% filter(cell_type == "T_upper") %>% select(cell_fraction) 
+colnames(hsct_T)[4] <- "T_upper"
+hsct_T$T_lower <- hsct_T$cell_fraction - (hsct_T$T_upper - hsct_T$cell_fraction)
+```
+
+## load parameters for B cells 
+
+```{r}
+## set up another set of depleted parameters for B cell model
+depletedparam <- list(
+  gamma = 0.38,
+  delta_oe = 0.25,
+  mu_i = 0.53,
+  delta_i_t = 0.2,
+  delta_i_re = 0.158, 
+  mu_t = 0.06,
+  delta_t = 0.005, 
+  phi_BM = 0.95,
+  mu_re = 0.04,
+  phi_s = 0.019,
+  epsilon_spl = 0.018
+)
+
+lapply(depletedparam, "*", 4) # scale from per 6h to per day
+```
+
+## CLP bone marrow -> thymus export, parameter tuning
+
+```{r}
+modo <- mread("model/mouse_erythrocytes_Hb_lymphoid_myeloid")  %>% param(depletedparam)
+
+exidata0 <- expand.idata(alphaCLP2DN = c(1e-4, 1.5e-4, 2e-4, 2.5e-4, 3e-4, 9e-4, 2e-3))
+
+sim0 <- modo %>% init(LT0 = 100) %>% idata_set(exidata0) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+tmp = merge(x = exidata0, y = sim0, by = "ID", all.x = TRUE)
+
+plot1 = ggplot(data = tmp) + 
+  geom_point(aes(x = alphaCLP2DN, y = T)) +
+  geom_hline(yintercept=1700, linetype="dashed", color = "red") + # The line value is from Boyer et al., 2019
+  labs(y = 'naive T cells count (#/uL)', x = 'CLP export to thymus rate') +
+  scale_x_continuous(trans='log10') + theme_bw()
+
+plot2 = ggplot(data = tmp) + 
+  geom_point(aes(x = alphaCLP2DN, y = CLPexport2thymus)) +
+  geom_hline(yintercept=10, linetype="dashed", color = "red") + 
+  labs(y = 'CLP export to thymus count', x = 'CLP export to thymus rate')  + 
+  scale_x_continuous(trans='log10') + theme_bw()
+
+png('img/mouse_alphaCLP2DNscan.png', width = 15, height = 4, units = 'in', res = 300)
+grid.arrange(plot2, plot1, ncol = 2)
+dev.off()
+```
+
+## mouse, steady state
+
+```{r}
+modo <- mread("model/mouse_erythrocytes_Hb_lymphoid_myeloid") %>% param(depletedparam)
+
+sim0 <- modo %>% init(LT0 = 1000) %>% mrgsim(end = 1500) %>% filter(time == 1500) %>% as.tibble()
+```
+
+
+## mouse HSCT, RBC, B cells, and T cells
+
+```{r}
+modo <- mread("model/mouse_erythrocytes_Hb_lymphoid_myeloid") %>% param(depletedparam)
+
+hsct1_2point5 <- RadioConditioning(0.1, 0.999, 0.999) %>% init(LT1 = 200) %>% param(rLT = 1/(2.5 * 7)) %>% mrgsim(end = 200) %>% as_tibble() %>% select(-ID)
+hsct3_2point5 <- RadioConditioning(0.3, 0.999, 0.999) %>% init(LT1 = 200) %>% param(rLT = 1/(2.5 * 7)) %>% mrgsim(end = 200) %>% as_tibble() %>% select(-ID)
+hsct5_2point5 <- RadioConditioning(0.5, 0.999, 0.999) %>% init(LT1 = 200) %>% param(rLT = 1/(2.5 * 7)) %>% mrgsim(end = 200) %>% as_tibble() %>% select(-ID)
+
+rbc_hsct <- ggplot() + 
+  geom_line(data = hsct1_2point5, aes(x = time, y = RBC1/(2e3), color = '10%' )) + 
+  geom_line(data = hsct3_2point5, aes(x = time, y = RBC1/(2e3), color = '30%' )) +
+  geom_line(data = hsct5_2point5, aes(x = time, y = RBC1/(2e3), color = '50%' )) + 
+  geom_errorbar(data=hsct_rbc, aes(x=time, ymin=RBC_lower,ymax=RBC_upper), alpha = 0.5) +
+  geom_point(data = hsct_rbc, aes(x = time, y = cell_count, color = 'obs')) + 
+  labs(y = 'donor RBC (#/uL)', x = 'time (days)', color = 'conditioning') +
+  theme_bw() + ggtitle('HSC transplant') + theme(legend.position="bottom") + coord_cartesian(xlim = c(0, 120)) + 
+  scale_y_continuous(trans='log10',  limits = c(1, 1e7), breaks = c(1, 1e3, 1e6), labels = c('1', '1K', '1M')) 
+
+b_hsct <- ggplot() + 
+  geom_line(data = hsct1_2point5, aes(x = time, y = transB * 100, color = '10%' )) + 
+  geom_line(data = hsct3_2point5, aes(x = time, y = transB * 100, color = '30%' )) +
+  geom_line(data = hsct5_2point5, aes(x = time, y = transB * 100, color = '50%' )) + 
+  geom_errorbar(data=hsct_B, aes(x=time, ymin=B_lower,ymax=B_upper), alpha = 0.5) +
+  geom_point(data = hsct_B, aes(x = time, y = cell_fraction, color = 'obs')) + 
+  labs(y = 'donor B cell (%)', x = 'time (days)', color = 'conditioning') + 
+  theme_bw() + ggtitle('HSC transplant') + theme(legend.position="bottom") 
+
+t_hsct <- ggplot() + 
+  geom_line(data = hsct1_2point5, aes(x = time, y = transT * 100, color = '10%' )) + 
+  geom_line(data = hsct3_2point5, aes(x = time, y = transT * 100, color = '30%' )) +
+  geom_line(data = hsct5_2point5, aes(x = time, y = transT * 100, color = '50%' )) + 
+  geom_errorbar(data=hsct_T, aes(x=time, ymin=T_lower,ymax=T_upper), alpha = 0.5) +
+  geom_point(data = hsct_T, aes(x = time, y = cell_fraction, color = 'obs')) + 
+  labs(y = 'donor T cell (%)', x = 'time (days)', color = 'conditioning') +
+  theme_bw() + ggtitle('HSC transplant') + theme(legend.position="bottom") 
+
+
+png('img/mouse_RBC_T_B_HSCT.png', width = 15, height = 6, units = 'in', res = 300)
+grid.arrange(rbc_hsct, b_hsct, t_hsct, ncol = 3)
+dev.off()
+```

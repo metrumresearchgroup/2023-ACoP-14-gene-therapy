@@ -1,0 +1,219 @@
+---
+title: "scale mouse model to human"
+output: pdf_document
+author: "YL"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+# Overview
+
+Goal: to scale an integrated model from mouse to human
+
+
+```{r setup}
+rm(list=ls())  #Clear out existing objects
+gc()
+
+# load required packages
+library(tidyverse)
+library(mrgsolve)
+library(gridExtra)
+library(grid)
+
+setwd(dirname(rstudioapi::getSourceEditorContext()$path)) # set the working directory at the folder that contains the script
+```
+
+
+# CD4+ exit peripheral rate tuning
+```{r}
+mod <- mread("model/human_erythroid_lymphoid_myeloid") %>% param(epsilon_spl = 0.032, delta_dp = 1e-6)
+
+exidata0 <- expand.idata(exit_peripheral_cd4 = c(0.015, 0.3, 0.4, 0.5, 0.55, 0.6, 0.7))
+
+sim0 <- mod %>% init(LT0 = 1200) %>% idata_set(exidata0) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+
+tmp = merge(x = exidata0, y = sim0, by = "ID", all.x = TRUE)
+
+plot1 = ggplot(data = tmp) + 
+  geom_point(aes(x = exit_peripheral_cd4, y = (cd4rec0/cd8rec0))) + 
+  geom_hline(yintercept=2, linetype="dashed", color = "red") + 
+  labs(y = 'blood CD4+:CD8+ ratio', x = 'rate of naive CD4+ T cell exit peripheral tissues', color = '') + theme_bw()
+
+ggsave("img/human_cd4_peripheral_exit_rate_scan.png", plot = plot1, width = 10, height = 4, units = c("in"), dpi = 300)
+```
+
+## steady state 
+```{r}
+# simulate data for steady state for a normal person
+
+mod <- mread("model/human_erythroid_lymphoid_myeloid") %>% param(epsilon_spl = 0.032, delta_dp = 1e-6)
+sim0 <- mod %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+
+
+# steady state for a untreated ADA-SCID person
+sim00 <-  mread("model/human_erythroid_lymphoid_myeloid") %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+```
+
+# Human SCD HSCT transplant
+
+Not the most suitable one, because the patient's spleen was removed before the gene therapy, and the patient also had multiple severe infection after leaving hospital at day 50 after transplant.
+
+```{r}
+mod <- mread("model/human_scd_lymphoid") %>% param(CLP2DN_amp = 512, gamma = 2.2)
+
+# pre-equlibrium
+pre_sim <- mod  %>% init(LT0 = 1200) %>%  mrgsim(end = 365 * 7) %>% as_tibble() %>% tail(n = 1) %>% select(-c(ID, time))
+
+# set up preconditioning
+ratioleft = 1-0.9
+
+mod2 <- mod %>% init(pre_sim) %>% 
+  init(pre_sim[,1:22] * ratioleft) %>% # progenitor in BM conditioning
+  init(pre_sim[,67:72] * ratioleft) %>% # CLP and propreB conditioning
+  init(pre_sim[,73:78] * ratioleft) %>% # splenic B cell conditioning
+  init(pre_sim[,79:116] * ratioleft) %>% # thymic endures similar conditioning
+  init(pre_sim[,117:130] * ratioleft) # conditioning on T cell outside thymus and GMs
+
+## set up initial condition for testing
+totalcd34 = 2.8e8 
+
+lthscinit = 1e-6 * totalcd34; 
+sthscinit = 1e-5 * totalcd34; 
+mppinit = 1e-3 * totalcd34;
+cmpinit = 1e-2 * totalcd34; 
+
+sim0 <- mod2 %>% init(LT1 = lthscinit, ST12 = sthscinit, MPP12 = mppinit, CMP12 = cmpinit) %>% mrgsim(end = 365 * 2) %>% as_tibble() 
+
+
+##------------------- plot to make sure steady state is reached -------------------##
+cellcount = ggplot(data = sim0) + 
+  geom_line(aes(x = time/30, y = LTHSC, color = 'LT-HSC abs count')) + 
+  geom_line(aes(x = time/30, y = RBCconc, color = 'RBC')) + 
+  geom_line(aes(x = time/30, y = RETconc, color = 'RET')) + 
+  geom_line(aes(x = time/30, y = Bconc, color = 'naive B')) + 
+  geom_line(aes(x = time/30, y = Tconc, color = 'naive T')) + 
+  geom_line(aes(x = time/30, y = GMconc, color = 'granulocyte')) + 
+  labs(y = 'cell count (#/uL peripheral blood)', x = 'time (months)', color = '') + 
+  scale_y_continuous(trans='log10', limits = c(1, 5e6),
+                     breaks = c(1, 1e3, 1e6, 1e9, 1e12), labels = c('1', '1K', '1M', '1B', '1T')) + 
+  theme(legend.position = "bottom") + theme_bw()
+
+
+## test for neutrophil engraftment time
+# assuming 90% of granulocytes are neutrophil
+sim0$time[which(sim0$GMconc*0.9 > 500)][1:10]  #Ribeil et al., 2019 reported to be day 38
+
+
+## quick check on RBC, RET, Hb recovery
+RBC_ribeil <- read.csv('data/RBC_Ribeil2017.csv', header = T)
+ret_ribeil <- data.frame(c(3,6,9,12,15), c(259000, 132000, 131000, 143000, 141000)) # unit in uL-1
+names(ret_ribeil) <- c('month', 'RET')
+hbinrbc_ribeil <- data.frame(c(3,6,9,12,15), c(34, 35, 36, 35, 35)) # unit in g.dL-1
+names(hbinrbc_ribeil) <- c('month', 'HbinRBC')
+
+Hb_ribeil <- read.csv('data/Hb_Ribeil2017.csv', header = T)
+hb_hbs <- Hb_ribeil[Hb_ribeil['Hb'] == 'HbS',]
+hb_hbaT87Q <- Hb_ribeil[Hb_ribeil['Hb'] == 'HbA_T87Q',]
+hb_total <- Hb_ribeil[Hb_ribeil['Hb'] == 'Hb_total',]
+  
+HbAconc = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = HbS, color = 'sim, HbS')) + 
+  geom_line(data = sim0, aes(x = time/30, y = HbA, color = 'sim, HbA_T87Q')) + 
+  geom_line(data = sim0, aes(x = time/30, y = totalHb, color = 'sim, total Hb')) + 
+  geom_point(data = hb_hbs, aes(x = month, y = Hbconc, color = 'obs, HbS')) + 
+  geom_point(data = hb_hbaT87Q, aes(x = month, y = Hbconc, color = 'obs, HbA_T87Q')) + 
+  geom_point(data = hb_total, aes(x = month, y = Hbconc, color = 'obs, total Hb')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(1, 15)) + 
+  labs(y = 'hemoglobin conc (g/dL)', x = 'time (months)', color = '') + theme_bw() + theme(legend.position = "bottom")
+
+
+RBCnum = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = RBCconc, color = 'sim')) +
+  geom_point(data = RBC_ribeil, aes(x = month, y = RBC_in_millions * 1e6, color = 'obs')) + 
+  labs(y = 'RBC count (#/uL)', x = 'time (months)', color = 'total RBC') + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(1, 15)) + 
+  scale_y_continuous(limits = c(1, 4.5e6), breaks = c(1e6, 2e6, 3e6, 4e6), 
+                     labels = c('1M', '2M', '3M', '4M')) + theme_bw() + theme(legend.position = "bottom")
+
+RETnum = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = RETconc, color = 'sim')) + 
+  geom_point(data = ret_ribeil, aes(x = month, y = RET, color = 'obs')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(0, 15)) + 
+  labs(y = 'RET count (#/uL)', x = 'time (months)', color = 'total RET') + theme_bw() + theme(legend.position = "bottom")
+
+
+HbinRBCconc = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = HbinRBC/10, color = 'sim')) + 
+  geom_point(data = hbinrbc_ribeil, aes(x = month, y = HbinRBC, color = 'obs')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15),  limits = c(3, 15)) + 
+  labs(y = 'Hb in RBC (g/dL)', x = 'time (months)', color = 'Hb conc in RBC') + theme_bw() + theme(legend.position = "bottom")
+
+png('img/human_erythroid_validation.png', width = 12, height = 6, units = 'in', res = 300) 
+grid.arrange(HbAconc, RBCnum, RETnum, HbinRBCconc, ncol = 2)
+```
+
+
+# Ex-vivo gene therapy
+
+```{r}
+patient1 <- read.csv('data/Aiuti2009.csv', header = TRUE) 
+
+adahomo <- mread("model/human_erythroid_lymphoid_myeloid")
+
+# pre-equlibrium
+pre_sim <- adahomo  %>% init(LT0 = 1000) %>%  mrgsim(end = 365 * 7) %>% as_tibble() %>% tail(n = 1) %>% select(-c(ID, time))
+
+# set up preconditioning
+ratioleft = 1-0.9
+
+mod2 <- adahomo %>% init(pre_sim) %>% 
+  init(pre_sim[,1:22] * ratioleft) %>% # progenitor in BM conditioning
+  init(pre_sim[,67:72] * ratioleft) %>% # CLP and propreB conditioning
+  init(pre_sim[,73:78] * ratioleft) %>% # splenic B cell conditioning
+  init(pre_sim[,79:116] * ratioleft) %>% # thymic endures similar conditioning
+  init(pre_sim[,117:130] * ratioleft) # conditioning on T cell outside thymus and GMs
+
+## set up initial condition for testing
+totalcd34 = 65e6
+
+lthscinit = 1e-6 * totalcd34; 
+sthscinit = 1e-5 * totalcd34; 
+mppinit = 1e-3 * totalcd34;
+cmpinit = 1e-2 * totalcd34;
+clpinit = 1e-4 * totalcd34;
+gmpinit = 1e-2 * totalcd34;
+boeinit = 5e-2 * totalcd34;
+biinit = 3e-2 * totalcd34; 
+
+sim0 <- mod2 %>% init(LT1 = lthscinit, ST12 = sthscinit, MPP12 = mppinit, CMP12 = cmpinit, GMP12 = gmpinit, 
+                       CLP1 = clpinit, Boe1 = boeinit, Bi1 = biinit) %>% 
+        mrgsim(end = 365 * 7) %>% as_tibble() 
+
+cd15plot = ggplot(data = sim0) + 
+  geom_line(aes(x = time/365, y = GM1/(GM0 + GM1) * 100, color = 'simul')) + 
+  geom_point(data = patient1 %>% filter(celltype == "CD15") ,aes(x = time, y = cellpercentage, color = 'obs'), size = 3) + 
+  scale_y_continuous(trans='log10',  limits = c(0.1, 100), breaks = c(0.1, 1, 10, 100), labels = c('0.1','1', '10','100')) + 
+  scale_x_continuous(limits = c(0, 7), breaks = c(0,1,2,3,4,5,6,7), labels = c('0','1', '2', '3', '4', '5', '6', '7')) + 
+  labs(y = 'vector-positive cells (%)', x = 'time (year)', color = '') + theme_bw() + theme(legend.position = "bottom") + 
+  ggtitle('CD15+ Granulocytic Cells')
+
+cd19plot = ggplot(data = sim0) + 
+  geom_line(aes(x = time/365, y = transB * 100, color = 'simul')) + 
+  geom_point(data = patient1 %>% filter(celltype == "CD19") ,aes(x = time, y = cellpercentage, color = 'obs'), size = 3) + 
+  scale_y_continuous(trans='log10',  limits = c(0.1, 100), breaks = c(0.1, 1, 10, 100), labels = c('0.1','1', '10','100')) + 
+  scale_x_continuous(limits = c(0, 7), breaks = c(0,1,2,3,4,5,6,7), labels = c('0','1', '2', '3', '4', '5', '6', '7')) + 
+  labs(y = 'vector-positive cells (%)', x = 'time (year)', color = '') + theme_bw() + theme(legend.position = "bottom") + 
+  ggtitle('CD19+ B Cells')
+
+cd3plot = ggplot(data = sim0) + 
+  geom_line(aes(x = time/365, y = transT * 100, color = 'simul')) + 
+  geom_point(data = patient1 %>% filter(celltype == "CD3") ,aes(x = time, y = cellpercentage, color = 'obs'), size = 3) + 
+  scale_y_continuous(trans='log10',  limits = c(0.1, 100), breaks = c(0.1, 1, 10, 100), labels = c('0.1','1', '10','100')) + 
+  scale_x_continuous(limits = c(0, 7), breaks = c(0,1,2,3,4,5,6,7), labels = c('0','1', '2', '3', '4', '5', '6', '7')) + 
+  labs(y = 'vector-positive cells (%)', x = 'time (year)', color = '') + theme_bw() +  theme(legend.position = "bottom") +
+  ggtitle('CD3+ T Cells')
+
+png('img/human_ada_scid_GT.png', width = 12, height = 4, unit = "in", res = 300)
+grid.arrange(cd15plot, cd19plot, cd3plot, ncol = 3)
+dev.off()
+```
