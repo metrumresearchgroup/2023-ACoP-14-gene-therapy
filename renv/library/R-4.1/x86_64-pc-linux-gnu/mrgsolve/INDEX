@@ -1,0 +1,106 @@
+$,ev-method             Select columns from an ev object
+$,mrgmod-method         Select parameter values from a model object
+aboutsolver             About the lsoda differential equation solver
+                        used by mrgsolve
+as_bmat                 Coerce R objects to block or diagonal matrices
+as_data_set             Create a simulation data set from ev objects
+as_deslist              Create a list of designs from a data frame
+as.ev                   Coerce an object to class ev
+as.list,mrgmod-method   Coerce a model object to list
+as.list,mrgsims-method
+                        Coerce an mrgsims object to list
+BLOCK_PARSE             Functions to parse code blocks
+blocks                  Return the code blocks from a model
+                        specification file
+c,matlist-method        Operations with matlist objects
+c,tgrid-method          Operations with tgrid objects
+carry_out               Select items to carry into simulated output
+cmtn                    Get the compartment number from a compartment
+                        name
+code                    Extract the code from a model
+data_set                Select and modify a data set for simulation
+design                  Set observation designs for the simulation
+details                 Extract model details
+env_eval                Re-evaluate the code in the ENV block
+env_get                 Return model environment
+env_ls                  List objects in the model environment
+env_update              Update objects in model environment
+ev                      Event objects for simulating PK and other
+                        interventions
+ev_assign               Replicate a list of events into a data set
+ev_days                 Schedule dosing events on days of the week
+ev_rep                  Replicate an event object
+ev_repeat               Repeat a block of dosing events
+ev_rx                   Create intervention objects from Rx input
+ev_seq                  Schedule a series of event objects
+exdatasets              Example input data sets
+expand_observations     Insert observations into a data set
+expand.idata            Create template data sets for simulation
+idata_set               Select and modify a idata set for simulation
+init                    Methods for working with the model compartment
+                        list
+inventory               Check whether all required parameters needed in
+                        a model are present in an object
+is.mrgmod               Check if an object is a model object
+is.mrgsims              Check if an object is mrgsim output
+lctran                  Convert select upper case column names to lower
+                        case to conform to mrgsolve data expectations
+loadso                  Load the model shared object
+matrix_helpers          Create matrices from vector input
+mcode                   Write, compile, and load model code
+mcRNG                   Set RNG to use L'Ecuyer-CMRG
+modlib                  Internal model library
+modlib_details          modlib: PK/PD Model parameters, compartments,
+                        and output variables
+modlib_pk               modlib: Pharmacokinetic models
+modlib_pkpd             modlib: Pharmacokinetic / pharmacodynamic
+                        models
+modlib_tmdd             modlib: Target mediated disposition model
+modlib_viral            modlib: HCV viral dynamics models
+mread                   Read a model specification file
+mrgsim                  Simulate from a model object
+mrgsim_q                Simulate from a model object with quicker
+                        turnaround
+mrgsim_variants         mrgsim variant functions
+mrgsims_dplyr           Methods for handling output with dplyr verbs
+mrgsims_modify          Methods for modifying mrgsims objects
+mrgsolve                mrgsolve
+mutate.ev               dplyr verbs for event objects
+names,mrgmod-method     Get all names from a model object
+nmext                   Import model estimates from a NONMEM ext file
+nmxml                   Import model estimates from a NONMEM xml file
+numerics_only           Prepare data.frame for input to mrgsim
+obsaug                  Augment observations in the simulated output
+obsonly                 Collect only observations in the simulated
+                        output
+omega                   Manipulate OMEGA matrices
+outvars                 Show names of current output variables
+param                   Create and work with parameter objects
+PKMODEL                 Parse PKMODEL BLOCK data
+plot_mrgsims            Generate a quick plot of simulated data
+plot_sims               Plot data as an mrgsims object
+plot,batch_mrgsims,missing-method
+                        Plot method for mrgsims objects
+qsim                    Basic, simple simulation from model object
+read_nmext              Extract estimates from NONMEM ext file
+realize_addl            Make addl doses explicit in an event object or
+                        data set
+render                  Render a model to a document
+Req                     Request simulated output
+reserved                Reserved words
+revar                   Get model random effect variances and
+                        covariances
+see                     Print model code to the console
+sigma                   Manipulate SIGMA matrices
+simargs                 Access or clear arguments for calls to mrgsim
+soloc                   Return the location of the model shared object
+solversettings          Optional inputs for lsoda
+summary.mrgmod          Print summary of a mrgmod object
+tscale                  Re-scale time in the simulated output
+update                  Update the model object
+valid_data_set          Validate and prepare a data sets for simulation
+valid_idata_set         Validate and prepare idata data sets for
+                        simulation
+within                  Update parameters, initials, and settings
+                        within a model object
+zero_re                 Zero out random effects in a model object

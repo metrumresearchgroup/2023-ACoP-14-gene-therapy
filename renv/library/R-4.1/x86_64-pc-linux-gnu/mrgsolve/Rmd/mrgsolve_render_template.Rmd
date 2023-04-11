@@ -1,0 +1,131 @@
+---
+params:
+  model: ""
+  project: ""
+  compile: TRUE
+---
+
+
+
+```{r,echo=FALSE,message=FALSE}
+library(mrgsolve)
+library(dplyr)
+library(knitr)
+options(width=120)
+opts_chunk$set(comment='',echo=FALSE,message=FALSE)
+
+prep_chunk <- function(x) {
+  paste(capture.output(print(x)),collapse="\n")
+}
+
+```
+
+```{r,message=FALSE}
+mod <- mread(model = params$model, project = params$project, compile=params$compile, quiet=TRUE)
+```
+
+```{r}
+blocks <- modelparse(mod@code, drop_blank=FALSE, comment_re="//")
+prob <- blocks[["PROB"]]
+if(is.null(prob)) prob <- paste0("# Model: `", mrgsolve:::model(mod),"`")
+
+par <-  capture.output(param(mod))
+init <- capture.output(init(mod))
+rmbl <- function(x) x[x!=""]
+
+```
+
+`r knit(text=prob)`
+
+
+# Details
+```{r}
+d <- mrgsolve:::details(mod,values=FALSE)
+if(nrow(d) > 0) {
+  
+  om <- omat(mod)
+  dfom <- data.frame(name=unlist(labels(om)),
+                     value=diag(as.matrix(om)))
+
+  sg <- smat(mod)
+  dfsg <- data.frame(name=unlist(labels(sg)),
+                     value=diag(as.matrix(sg)))
+  
+  dfp <- 
+    as.data.frame(t(as.data.frame(allparam(mod)))) %>% 
+    setNames(.,"value") %>%
+    mutate(name=rownames(.))
+  
+  dfi <- as.data.frame(t(as.data.frame(init(mod)))) %>%
+    setNames(.,"value") %>%
+    mutate(name=rownames(.))
+  
+  dfj <- bind_rows(dfp,dfi,dfom,dfsg)
+  
+  d <- left_join(d,dfj,by="name")
+  
+  x <- paste(capture.output(print(d,row.names=FALSE)),collapse="\n")
+  
+} else {
+  x <- "No annotations were found in the model file."
+}
+
+```
+
+```{c,echo=TRUE,eval=FALSE,code=x}
+```
+
+
+# Parameter and fixed values
+```{r}
+x <- prep_chunk(allparam(mod))
+```
+
+```{c,code=x,eval=FALSE,echo=TRUE}
+```
+
+# Compartments and initial values
+```{r}
+x <- prep_chunk(init(mod))
+```
+
+```{bash,code=x,eval=FALSE,echo=TRUE}
+```
+
+# Model code
+
+```{r}
+x <- paste(capture.output(blocks(mod,GLOBAL,MAIN,ODE,TABLE,SET,PKMODEL)),collapse="\n")
+```
+```{Rcpp,code=x,eval=FALSE,echo=TRUE}
+```
+
+
+# Environment
+```{r}
+x <- env_ls(mod)
+if(nrow(x) > 0) {
+  x <- capture.output(print(x,row.names=FALSE))
+  x <- paste(x,collapse="\n")
+} else {
+  x <- capture.output(cat("No objects in $ENV"))
+}
+
+```
+```{c,echo=TRUE,eval=FALSE,code=x}
+
+```
+
+
+
+# Rendered
+```{r}
+x <- capture.output(cat(date()))
+```
+```{c,code=x,eval=FALSE,echo=TRUE}
+```
+
+
+
+
+

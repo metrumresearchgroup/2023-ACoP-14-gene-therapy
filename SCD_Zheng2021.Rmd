@@ -1,0 +1,279 @@
+---
+title: "SCD_Zheng2021"
+output: html_document
+date: '2023-02-06'
+---
+
+# set up
+
+```{r}
+rm(list = ls())
+setwd(dirname(rstudioapi::getSourceEditorContext()$path)) # set the working directory at the folder that contains the script
+
+# load required packages
+library(tidyverse)
+library(mrgsolve)
+library(gridExtra)
+library(grid)
+
+mod <- mread("model/fullmodel2_scd") 
+```
+
+# Alpha-globin synthesis rate tuning
+
+```{r}
+synalphaimpact <- function(ksyn, Kdalphabeta = 1e-3, Hb_saturation = 0.74, tauRBC = 120)
+{
+  # all default parameters are for healthy people
+  # if simulation for SCD is wanted, set Kdalphabeta_sickle = 1e-2, Hb_saturation = 0.68, tauRBC = 12
+  
+  sim1 <- mod %>% param(totalCD34infused = 0) %>%   
+    param(Kdalphabeta_sickle = Kdalphabeta) %>% param(HbS_saturation = Hb_saturation) %>% param(tauRBCsickle = tauRBC) %>% # change HbS to HbA parameters
+    init(LT0 = 1) %>%
+    param(ksynalpha = ksyn) %>%  #decrease hemoglobin synthesis rate
+    mrgsim(end = 30 * 18) %>% as_tibble() 
+  
+  # return the data at steady state
+  data = tail(sim1, n = 1)
+  
+  output = list( 
+              RBCconc = data$RBCconc,
+              RET = data$RET,
+              RBC = data$RBC,
+              Hb = data$totalHb,
+              vO2 = data$bloodO2,
+              HbinRBC = data$HbinRBC)
+  
+  tmp = c(data$RBCconc, data$RET, data$totalHb, data$bloodO2, data$HbinRBC)
+  return(tmp)
+}
+
+# check through a list of variables
+ksyn = c(0.1e-6, 0.3e-6, 0.5e-6, 0.6e-6, 0.7e-6, 1e-6, 1.5e-6, 2e-6)
+
+data = matrix(rep(NA, length(ksyn) * 5), nrow = length(ksyn))
+
+for(i in 1:length(ksyn))
+{
+  data[i,] = synalphaimpact(ksyn[i])
+}
+
+tmp = data.frame(data)
+names(tmp) = c('RBCconc', 'RET', 'Hb', 'vO2','HBinRBC')
+
+tmp['ksyn'] = ksyn
+
+
+pRBCconc <- ggplot(data = tmp, aes(x = ksyn, y = RBCconc)) + 
+  geom_line(linetype = "dashed") + 
+  geom_point(shape=23, fill="red", color="red", size=3) + 
+  labs(y = 'RBC count (#/uL)', x = '\u03b1-globin synthesis rate (nmol.day-1.cell-1)') + theme_bw()
+
+pHbconc <-  ggplot(data = tmp, aes(x = ksyn, y = Hb)) + 
+  geom_line(linetype = "dashed") + 
+  geom_point(shape=23, fill="red", color="red", size=3) + 
+  labs(y = 'Hb conc in blood (g/dL)', x = '\u03b1-globin synthesis rate (nmol.day-1.cell-1)') + theme_bw()
+
+pvO2 <-  ggplot(data = tmp, aes(x = ksyn, y = vO2)) + 
+  geom_line(linetype = "dashed") + 
+  geom_point(shape=23, fill="red", color="red", size=3) + 
+  labs(y = 'blood O2 (ml/dL)', x = '\u03b1-globin synthesis rate (nmol.day-1.cell-1)') + theme_bw()
+
+pHbconc2 <-  ggplot(data = tmp, aes(x = ksyn, y = HBinRBC)) + 
+  geom_line(linetype = "dashed") + 
+  geom_point(shape=23, fill="red", color="red", size=3) + 
+  labs(y = 'Hb conc in RBC (g/L)', x = '\u03b1-globin synthesis rate (nmol.day-1.cell-1)') + theme_bw()
+
+
+png('img/scd_ksynalpha.png', width = 10, height = 3, units = 'in', res = 300) 
+grid.arrange(pRBCconc, pHbconc, pHbconc2, ncol = 3)
+dev.off()
+
+grid.arrange(pRBCconc, pHbconc, pHbconc2, ncol = 3)
+```
+
+# Steady state verification
+
+```{r}
+##------------------- sickle cell anemia simulation -------------------##
+
+sim0 <- mod %>% param(totalCD34infused = 0) %>% 
+  init(LT0 = 1) %>% param(ksynalpha = 6e-7) %>%
+  mrgsim(end = 30 * 18) %>% as_tibble() 
+
+
+##------------------- healthy people simulation -------------------##
+
+sim1 <- mod %>% param(totalCD34infused = 0) %>% 
+  param(Kdalphabeta_sickle = 1e-3) %>% # change the dissociation from sickle Hb to normal HbA
+  init(LT0 = 1) %>%
+  param(tauRBCsickle = 120) %>%  # this parameter change simulate healthy people situation
+  param(ksynalpha = 6e-7) %>%  #decrease hemoglobin synthesis rate
+  param(HbS_saturation = 0.74) %>% # change HbS to HbA parameters
+  mrgsim(end = 30 * 18) %>% as_tibble() 
+
+##-------------------- visualization --------------------##
+
+notreatmentbloodcell = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = RBC, color = 'RBC')) + 
+  geom_line(data = sim0, aes(x = time/30, y = RET, color = 'RET')) + 
+  geom_line(data = sim0, aes(x = time/30, y = LTHSC, color = 'LTHSC')) + 
+  geom_line(data = sim0, aes(x = time/30, y = STHSC, color = 'STHSC')) + 
+  geom_line(data = sim0, aes(x = time/30, y = MPP, color = 'MPP')) + 
+  geom_line(data = sim0, aes(x = time/30, y = CMP, color = 'CMP')) + 
+  geom_line(data = sim0, aes(x = time/30, y = BFUE, color = 'BFU-E')) + 
+  geom_line(data = sim0, aes(x = time/30, y = CFUE, color = 'CFU-E')) + 
+  labs(y = 'cell count', x = 'time (months)', color = '') + 
+  scale_y_continuous(trans='log10', limits = c(1, 1e14), 
+                     breaks = c(1, 1e3, 1e6, 1e9, 1e12), 
+                     labels = c('1', '1K', '1M', '1B', '1T')) + theme(legend.position = "bottom") + 
+  ggtitle('sickle cell patient') + theme_bw()
+
+
+notreatmenthemoglobin = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = totalHb, color = 'total Hb')) + 
+  geom_line(data = sim0, aes(x = time/30, y = totalHbA, color = 'HbA')) + 
+  geom_line(data = sim0, aes(x = time/30, y = totalHbS, color = 'HbS')) + 
+  geom_line(data = sim0, aes(x = time/30, y = totalHbF, color = 'HbF')) + 
+  geom_line(data = sim0, aes(x = time/30, y = totalHbA2, color = 'HbA2')) + 
+  labs(y = 'hemoglobin concentration (g/dL)', x = 'time (months)', color = 'SCD') +
+  theme(legend.position = "bottom") + theme_bw()
+
+notreatmentO2 = ggplot() + 
+  geom_line(data = sim0, aes(x = time/30, y = bloodO2, color = 'vO2')) + 
+  labs(y = 'blood oxygen (ml/dL)', x = 'time (months)', color = 'SCD') +
+  theme(legend.position = "bottom") + theme_bw()
+
+
+healthybloodcell = ggplot() + 
+  geom_line(data = sim1, aes(x = time/30, y = RBC, color = 'RBC')) + 
+  geom_line(data = sim1, aes(x = time/30, y = RET, color = 'RET')) + 
+  geom_line(data = sim1, aes(x = time/30, y = LTHSC, color = 'LTHSC')) + 
+  geom_line(data = sim1, aes(x = time/30, y = STHSC, color = 'STHSC')) + 
+  geom_line(data = sim1, aes(x = time/30, y = MPP, color = 'MPP')) + 
+  geom_line(data = sim1, aes(x = time/30, y = CMP, color = 'CMP')) + 
+  geom_line(data = sim1, aes(x = time/30, y = BFUE, color = 'BFU-E')) + 
+  geom_line(data = sim1, aes(x = time/30, y = CFUE, color = 'CFU-E')) + 
+  labs(y = 'cell count', x = 'time (months)', color = '') + 
+  scale_y_continuous(trans='log10', limits = c(1, 1e14), 
+                     breaks = c(1, 1e3, 1e6, 1e9, 1e12), 
+                     labels = c('1', '1K', '1M', '1B', '1T')) + theme(legend.position = "bottom") + 
+  ggtitle('healthy subject') + theme_bw()
+
+
+healthyhemoglobin = ggplot() + 
+  geom_line(data = sim1, aes(x = time/30, y = totalHb, color = 'total Hb')) + 
+#  geom_line(data = sim1, aes(x = time/30, y = totalHbA, color = 'HbA')) + 
+  geom_line(data = sim1, aes(x = time/30, y = totalHbS, color = 'HbA')) + 
+  geom_line(data = sim1, aes(x = time/30, y = totalHbF, color = 'HbF')) + 
+  geom_line(data = sim1, aes(x = time/30, y = totalHbA2, color = 'HbA2')) + 
+  labs(y = 'hemoglobin concentration (g/dL)', x = 'time (months)', color = 'healthy') + 
+  theme(legend.position = "bottom") + theme_bw()
+
+healthyO2 = ggplot() + 
+  geom_line(data = sim1, aes(x = time/30, y = bloodO2, color = 'vO2')) + 
+  labs(y = 'blood oxygen (ml/dL)', x = 'time (months)', color = 'healthy') +
+  theme(legend.position = "bottom") + theme_bw()
+
+
+png('img/scd_healthy_sickle.png', width = 20, height = 8, units = 'in', res = 300) 
+grid.arrange(notreatmentbloodcell, notreatmenthemoglobin, notreatmentO2, 
+             healthybloodcell, healthyhemoglobin, healthyO2,
+             ncol = 3)
+dev.off()
+```
+
+
+# Simulation for RET, RBC, and Hb dynamics from Ribeil et al., 2017
+
+```{r}
+# set the initial condition of the system preconditioning
+# assuming 90% endogenous progenitor pool is lost during myeloablative preconditioning
+# the initial values are taken from SCD subject that runs to a steady state
+
+sim0 <- mod %>% param(totalCD34infused = 0) %>% 
+  init(LT0 = 1) %>% param(ksynalpha = 6e-7) %>%
+  mrgsim(end = 30 * 18) %>% as_tibble() 
+
+data = tail(sim0, n = 1)
+
+Data <- data[,-(1:2),drop=FALSE]  
+
+# steady state of sickle cell patients
+mod2 <- mod %>% init(Data)
+
+# myeloablative preconditioning
+ratioleft = 1-0.9
+
+mod3 <- mod2 %>% init(LT0 = Data$LT0 * ratioleft) %>% 
+  init(ST01 = Data$ST01 * ratioleft) %>% init(ST02 = Data$ST02 * ratioleft) %>%
+  init(MPP01 = Data$MPP01 * ratioleft) %>% init(MPP02 = Data$MPP02 * ratioleft) %>%
+  init(CMP01 = Data$CMP01 * ratioleft) %>% init(CMP02 = Data$CMP02 * ratioleft) 
+
+
+# simulation after the patient is given 2.8e8 (5.6e6 per kg)
+sim <- mod3 %>% param(ksynalpha = 6e-7) %>% mrgsim(delta = 0.5, end = 30 * 18) %>% as_tibble() 
+
+# read in the observed data from Ribeil et al., 2017
+RBC_ribeil <- read.csv('data/RBC_Ribeil2017.csv', header = T)
+Hb_ribeil <- read.csv('data/Hb_Ribeil2017.csv', header = T)
+
+hb_hbs <- Hb_ribeil[Hb_ribeil['Hb'] == 'HbS',]
+hb_hbaT87Q <- Hb_ribeil[Hb_ribeil['Hb'] == 'HbA_T87Q',]
+
+
+# plot what is available in Figure S4
+RBCnum = ggplot() + 
+  geom_line(data = sim, aes(x = time/30, y = RBCconc, color = 'total RBC')) +
+  geom_line(data = sim, aes(x = time/30, y = RBC0/5e6, color = 'endogenous RBC')) +
+  geom_line(data = sim, aes(x = time/30, y = (RBC1 + RBC2 + RBC3 + RBC4)/5e6, color = 'transduced RBC')) +
+  geom_point(data = RBC_ribeil, aes(x = month, y = RBC_in_millions * 1e6, color = 'Ribeil et al., 2017')) + 
+  labs(y = 'RBC count (#/uL)', x = 'time (months)', color = '') + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15)) + 
+  scale_y_continuous(limits = c(1, 4.5e6), breaks = c(1e6, 2e6, 3e6, 4e6), 
+                     labels = c('1M', '2M', '3M', '4M')) + theme_bw() + theme(legend.position = "bottom")
+
+HbAconc = ggplot() + 
+  geom_line(data = sim, aes(x = time/30, y = totalHbS, color = 'total HbS')) + 
+  geom_line(data = sim, aes(x = time/30, y = totalHbA, color = 'total HbA_T87Q')) + 
+  geom_point(data = hb_hbs, aes(x = month, y = Hbconc, color = 'HbS, Ribeil et al., 2017')) + 
+  geom_point(data = hb_hbaT87Q, aes(x = month, y = Hbconc, color = 'HbA_T87Q, Ribeil et al., 2017')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15)) + 
+  labs(y = 'hemoglobin conc (g/dL)', x = 'time (months)', color = '') + theme_bw() + theme(legend.position = "bottom")
+
+
+# RET data reported in Ribeil et al., 2017
+ret_ribeil <- data.frame(c(3,6,9,12,15), c(259000, 132000, 131000, 143000, 141000)) # unit in uL-1
+names(ret_ribeil) <- c('month', 'RET')
+
+RETnum = ggplot() + 
+  geom_line(data = sim, aes(x = time/30, y = RET/(5e6), color = 'total RET')) + 
+  geom_line(data = sim, aes(x = time/30, y = RET0/(5e6), color = 'endogenous RET')) + 
+  geom_line(data = sim, aes(x = time/30, y = (RET1 + RET2 + RET3 + RET4)/(5e6), color = 'transduced RET')) + 
+  geom_point(data = ret_ribeil, aes(x = month, y = RET, color = 'RET, Ribeil et al., 2017')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15)) + 
+  labs(y = 'RET count (#/uL)', x = 'time (months)', color = '') + theme_bw() + theme(legend.position = "bottom")
+
+
+# check ratio between endogenous and transduced HSC
+HSCnum = ggplot(data = sim) + 
+  geom_line(aes(x = time/30, y = LT0, color = 'endogenous LT-HSC')) + 
+  geom_line(aes(x = time/30, y = LT1, color = 'transduced LT-HSC')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15)) + 
+  labs(y = 'LT-HSC count (#)', x = 'time (months)', color = '') + theme_bw() + theme(legend.position = "bottom") 
+
+# Hb conc in RBC data reported in Ribeil et al., 2017
+hbinrbc_ribeil <- data.frame(c(3,6,9,12,15), c(34, 35, 36, 35, 35)) # unit in g.dL-1
+names(hbinrbc_ribeil) <- c('month', 'HbinRBC')
+
+HbinRBCconc = ggplot() + 
+  geom_line(data = sim, aes(x = time/30, y = HbinRBC/10, color = 'Hb conc in RBC')) + 
+  geom_point(data = hbinrbc_ribeil, aes(x = month, y = HbinRBC, color = 'Hb conc in RBC, Ribeil et al., 2017')) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15)) + 
+  labs(y = 'Hb in RBC (g/dL)', x = 'time (months)', color = '') + theme_bw() + theme(legend.position = "bottom")
+
+
+png('img/scd_Ribeil2017.png', width = 14, height = 7, units = 'in', res = 300) 
+grid.arrange(RBCnum, HbAconc, RETnum, HbinRBCconc, ncol = 2)
+dev.off()
+```

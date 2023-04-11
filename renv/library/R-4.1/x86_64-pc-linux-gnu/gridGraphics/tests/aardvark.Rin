@@ -1,0 +1,57 @@
+
+tests <- unlist(strsplit(Sys.getenv("R_GRIDGRAPHICS_TESTS"), ","))
+
+testfiles <- character(0)
+
+# Will look for test targets in test-scripts/
+# e.g., 'R_GRIDGRAPHICS_TESTS=abline' will copy "test-abline.R" test script
+files <- list.files(system.file("test-scripts", package="gridGraphics"))
+for (i in tests) {
+    matches <- gsub("^test-|[.]R$", "", files) %in% tests
+    if (any(matches)) {
+        testfiles <- c(testfiles, files[matches])
+    } 
+}
+
+# A set of tests for the graphics package
+# Core C-level entry points
+graphics.pkg.core <- c("test-abline.R", "test-arrows.R", "test-axis.R", 
+                       "test-box.R", "test-clip.R", "test-contour.R", 
+                       "test-image.R", "test-layout.R", "test-mtext.R", 
+                       "test-palette.R", "test-par.R", "test-path.R", 
+                       "test-plot.window.R", "test-polygon.R",
+                       "test-rect.R", "test-raster.R", "test-segments.R",
+                       "test-text.R", "test-title.R", "test-xspline.R")
+# Higher-level plot functions
+graphics.pkg <- c("test-assocplot.R", "test-axis.POSIXct.R", "test-axTicks.R",
+                  "test-barplot.R", "test-boxplot.matrix.R", "test-boxplot.R",
+                  "test-bxp.R", "test-cdplot.R", "test-coplot.R", 
+                  "test-curve.R", "test-dotchart.R", "test-fourfold.R",
+                  "test-grid.R", "test-hist.POSIXt.R", "test-hist.R",
+                  "test-identify.R", "test-legend.R", "test-lines.R",
+                  "test-matplot.R", "test-mosaicplot.R", "test-pairs.R",
+                  "test-panel.smooth.R", "test-pie.R", "test-plot.data.frame.R",
+                  "test-plot.default.R", "test-plot.design.R", 
+                  "test-plot.factor.R", "test-plot.formula.R",
+                  "test-plot.histogram.R", "test-plot.R", "test-plot.table.R",
+                  "test-points.R", "test-polypath.R", "test-rug.R",
+                  "test-screen.R", "test-smoothScatter.R",
+                  "test-spineplot.R", "test-stars.R", "test-stripchart.R",
+                  "test-sunflowerplot.R", "test-symbols.R", "test-units.R", 
+                  "test-persp.R", "test-filled.contour.R")
+if ("graphics-pkg-core" %in% tests || "all" %in% tests) {
+    testfiles <- c(testfiles, graphics.pkg.core)
+} 
+if ("graphics-pkg" %in% tests || "all" %in% tests) { 
+    testfiles <- c(testfiles, graphics.pkg.core, graphics.pkg)
+}
+
+# Miscellaneous tests
+if ("all" %in% tests) {
+   testfiles <- c(testfiles, "test-missing.R")
+}
+
+# Copy over the full set of selected test files (which will then be run)
+for (i in unique(testfiles)) {
+    file.copy(system.file("test-scripts", i, package="gridGraphics"), ".")  
+}
