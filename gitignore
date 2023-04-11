@@ -1,4 +1,4 @@
 .DS_Store
-renv/
+renv
 .Rhistory
 .Rproj*
