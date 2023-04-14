@@ -1,16 +1,26 @@
 # Summary
 
-This is an open science project that aimed to provide open access to a QSP model for hematopoietic stem cell (HSC) differentiation. The model was implemented in both R and julia.
+This is an open science project aimed to provide open access to a QSP model for hematopoietic stem cell (HSC) differentiation. The model was implemented in both the R and julia programming languages.
 
-**Goal of this work**: to develop a versatile platform model for HSC differentiation to erythrocytes, lymphocytes, and granulocytes. The model aimed to predict the dynamics of cell reconstitution after ex-vivo gene therapy. 
+**Goal of this work**: to develop a versatile platform model for HSC differentiation to erythrocytes, lymphocytes, and granulocytes. The model was shown to be able to predict the dynamics of cell reconstitution after ex-vivo gene therapy.
 
-**Motivation of this work**: there have been many models developed for HSC differentiation into subset of cells, or development of HSC-derived cells (e.g. T cell development in thymus). However, these models failed to capture the complexity and the multi-organ nature of HSC differentiation. Our work aims to fill this gap. The result is an integrated multi-organ QSP model that captured HSC differentiation to red blood cells (RBCs), granulocytes, T cells, and B cells and their dynamics in blood and in secondary lymphoid organs. 
 
-**Method**: the model was built in a stepwise fashion by integrating published models while incorporating multiple layers of progenitors described in literature and calibrate the model based on experimental data obtained in mouse. The model was then scaled to human. 
+**Motivation of this work**: there have been many partial models developed for HSC differentiation into subset of cells, or development of HSC-derived cells (e.g. T cell development in thymus). However, these models failed to capture the complexity and the multi-organ nature of HSC differentiation. Our work aims to fill this gap. The result is an integrated multi-organ QSP model that captures HSC differentiation to red blood cells (RBCs), granulocytes, T cells, and B cells and their dynamics in blood and in other tissues.
 
-**Results**: we demonstrate that our model can capture the granulocytes and lymphocytes reconstitution after ex-vivo gene therapy on a patient that suffered from adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID), as well as blood cell and hemoglobin reconstitution after a patient with sickle cell disease (SCD) receiving ex-vivo gene therapy. We also demonstrate that we can capture the vector copy number (VCN) dynamics on ADA-SCID mice after receiving ex-vivo gene therapy.
 
-**Future work**: we believe our model can be adapted to predict the outcome under different gene therapy protocol for the following diseases:
+**Method**: the model was built in a stepwise fashion by integrating published models while incorporating multiple layers of progenitors described in the literature. It was calibrated based on experimental data obtained in mice and humans. 
+
+**Results**: We demonstrate that the model can capture
+
+1. RBCs, T cell, and B cell reconstitution in mice after HSC transplant;
+
+2. the vector copy number (VCN) dynamics on ADA-SCID mice after receiving ex-vivo gene therapy;
+
+3. the granulocytes’ and lymphocytes’ reconstitution after ex-vivo gene therapy in a patient that suffered from adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID);
+
+4. RBC and hemoglobin reconstitution after a patient with sickle cell disease (SCD) received ex-vivo gene therapy.
+
+**Future work**: we believe our model can be adapted to predict the outcome of different gene therapy protocols for the following diseases:
 
 - Transfusion-dependent <img src="https://latex.codecogs.com/svg.image?\beta" title=" " />-thalassemia (currently approved in the U.S. under the name [ZYNTEGLO](https://investor.bluebirdbio.com/news-releases/news-release-details/bluebird-bio-announces-fda-approval-zynteglor-first-gene-therapy))
 - Pyruvate Kinase Deficiency (PKD) ([NCT04105166](https://clinicaltrials.gov/ct2/show/NCT04105166))
@@ -569,7 +579,7 @@ R version 4.1.3 and the following R packages:
 ## package management
 
 1. Install pkgr software following the instructions [here](https://github.com/metrumresearchgroup/pkgr). 
-2. Open the R project `Public.Rproj`. This allows you to work from within a self-contained project environment.
+2. Open the R project `ExVivo.Rproj`. This allows you to work from within a self-contained project environment.
 3. Install packages by typing in terminal: `pkgr install`. This command will look for the file `pkgr.yml` and install the packages listed. The specific package versions are imported from https://mpn.metworx.com/docs/.
 
 ## mrgsolve installation

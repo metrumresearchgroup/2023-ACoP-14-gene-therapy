@@ -2,3 +2,4 @@
 renv
 .Rhistory
 .Rproj*
+.Rproj.user
