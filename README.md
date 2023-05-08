@@ -1,77 +1,64 @@
 # Summary
 
-This is an open science project aimed to provide open access to a QSP model for hematopoietic stem cell (HSC) differentiation. The model was implemented in both the R and julia programming languages.
+This is a project aimed to provide open access to a quantitative systems pharmacology (QSP) model for hematopoietic stem cell (HSC) differentiation. The model was implemented in both the R and Julia programming languages.
 
 **Goal of this work**: to develop a versatile platform model for HSC differentiation to erythrocytes, lymphocytes, and granulocytes. The model was shown to be able to predict the dynamics of cell reconstitution after ex-vivo gene therapy.
 
 
-**Motivation of this work**: there have been many partial models developed for HSC differentiation into subset of cells, or development of HSC-derived cells (e.g. T cell development in thymus). However, these models failed to capture the complexity and the multi-organ nature of HSC differentiation. Our work aims to fill this gap. The result is an integrated multi-organ QSP model that captures HSC differentiation to red blood cells (RBCs), granulocytes, T cells, and B cells and their dynamics in blood and in other tissues.
+**Motivation of this work**: there had been many partial models developed for HSC differentiation into subset of cells, or development of HSC-derived cells (e.g. T cell development in thymus). However, these models failed to capture the complexity and the multi-organ nature of HSC differentiation. Our work aimed to fill this gap. The result was an integrated multi-organ QSP model that captures HSC differentiation to red blood cells (RBCs), granulocytes, T cells, and B cells and their dynamics in blood and in other tissues.
 
 
 **Method**: the model was built in a stepwise fashion by integrating published models while incorporating multiple layers of progenitors described in the literature. It was calibrated based on experimental data obtained in mice and humans. 
 
-**Results**: We demonstrate that the model can capture
+**Results**: We demonstrated that the model could capture
 
 1. RBCs, T cell, and B cell reconstitution in mice after HSC transplant;
 
 2. the vector copy number (VCN) dynamics on ADA-SCID mice after receiving ex-vivo gene therapy;
 
-3. the granulocytes’ and lymphocytes’ reconstitution after ex-vivo gene therapy in a patient that suffered from adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID);
+3. granulocytes’ and lymphocytes’ reconstitution after ex-vivo gene therapy in a patient who suffered from adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID);
 
-4. RBC and hemoglobin reconstitution after a patient with sickle cell disease (SCD) received ex-vivo gene therapy.
+4. RBC and hemoglobin reconstitution after ex-vivo gene therapy in a patient with sickle cell disease (SCD).
 
-**Future work**: we believe our model can be adapted to predict the outcome of different gene therapy protocols for the following diseases:
+**Future work**: we believed our model could be adapted to predict the outcome of different gene therapy protocols for the following diseases:
 
-- Transfusion-dependent <img src="https://latex.codecogs.com/svg.image?\beta" title=" " />-thalassemia (currently approved in the U.S. under the name [ZYNTEGLO](https://investor.bluebirdbio.com/news-releases/news-release-details/bluebird-bio-announces-fda-approval-zynteglor-first-gene-therapy))
+- Transfusion-dependent <img src="https://latex.codecogs.com/svg.image?\beta" title=" " />-thalassemia (approved in the U.S. under the name [ZYNTEGLO](https://investor.bluebirdbio.com/news-releases/news-release-details/bluebird-bio-announces-fda-approval-zynteglor-first-gene-therapy))
 - Pyruvate Kinase Deficiency (PKD) ([NCT04105166](https://clinicaltrials.gov/ct2/show/NCT04105166))
-- Metachromatic leukodystrophy (MLD) (currently authorized in Europe under the name [Libmeldy](https://www.ema.europa.eu/en/medicines/human/EPAR/libmeldy))
+- Metachromatic leukodystrophy (MLD) (authorized in Europe under the name [Libmeldy](https://www.ema.europa.eu/en/medicines/human/EPAR/libmeldy))
 
-We also believe our model can benefit from additional calibration/ validation with additional data at progenitor level. Details are discussed in the [future work](#future-work) and [Challenges and uncertainties](#challenges) sections.
+We believed our model could benefit from additional calibration/ validation with additional data at progenitor level. Details were discussed in the [future work](#future-work) and [Challenges and uncertainties](#challenges) sections.
 
 **How to use this repo**: see [Content](#content) and [Setup](#r-setup-section) sections.
 
 ## Model development
 
-This model was built on 4 published models: 
+This model integrated 4 published models: 
 
-- A model on human HSC differentiation to red blood cells (RBCs) described in [Zheng et al., 2021](https://ascpt.onlinelibrary.wiley.com/doi/full/10.1002/psp4.12638).
+- A model of human HSC differentiation into red blood cells (RBCs) ([Zheng et al., 2021](https://ascpt.onlinelibrary.wiley.com/doi/full/10.1002/psp4.12638)).
 
-- A mouse B cell development model described in [Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full).
+- A mouse B cell development model ([Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full)).
 
-- A mouse T cell development model described in [Thomas-Vaslin et al., 2008](https://journals.aai.org/jimmunol/article/180/4/2240/84513/Comprehensive-Assessment-and-Mathematical-Modeling).
+- A mouse T cell development model ([Thomas-Vaslin et al., 2008](https://journals.aai.org/jimmunol/article/180/4/2240/84513/Comprehensive-Assessment-and-Mathematical-Modeling)).
 
-- A human naive T cell dynamics model described in [Sove et al., 2020](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12546)
+- A human naive T cell dynamics model ([Sove et al., 2020](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12546))
 
 <img src="img/Diagram_integration.png" alt="model structure" width="500" >
 
-The model was developed in 4 parts: 
+The model was developed in 4 steps: 
 
-1. Implementation of existing human HSC -> RBC differentiation model described in [Zheng et al., 2021](https://ascpt.onlinelibrary.wiley.com/doi/full/10.1002/psp4.12638). <a id='human-scd'></a>
+1. Implement an existing human HSC -> RBC differentiation model ([Zheng et al., 2021](https://ascpt.onlinelibrary.wiley.com/doi/full/10.1002/psp4.12638)). <a id='human-scd'></a>
 
-2. Scale the HSC -> RBC differentiation model from human to mouse. <a id='mouse-scd'></a>
+2. Scale the HSC -> RBC differentiation model from human to mouse based on literature data. <a id='mouse-scd'></a>
 
 3. Integrate a T cells development model from [Thomas-Vaslin et al., 2008](https://journals.aai.org/jimmunol/article/180/4/2240/84513/Comprehensive-Assessment-and-Mathematical-Modeling), a B cells development model from [Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full), and HSC -> granulocyte differentiation model into the mouse HSC -> RBC differentiation model in mouse. <a id='mouse-integrated'></a>
 
 4. Scale the integrated mouse HSC differentiation model to human. <a id='human-integrated'></a>
 
-Eventually, our model was able to predict the immune cell reconstitution of a patient with ADA-SCID after receiving ex-vivo gene therapy ([Aiuti et al., 2009](https://www.nejm.org/doi/pdf/10.1056/NEJMoa0805817)). 
+Simulations demonstrated our model was able to predict the immune cell reconstitution of a patient with ADA-SCID after receiving ex-vivo gene therapy ([Aiuti et al., 2009](https://www.nejm.org/doi/pdf/10.1056/NEJMoa0805817)). 
 
 In addition, our model was validated using the RBC recovery after ex vivo gene therapy in a patient ([Ribeil et al., 2017](https://www.nejm.org/doi/full/10.1056/nejmoa1609677)), ex vivo gene therapy in mouse ([Carbonaro et al., 2012](https://pubmed.ncbi.nlm.nih.gov/22833548/)), and stem cell/ progenitor transplants in mouse ([Boyer et al., 2019](https://pubmed.ncbi.nlm.nih.gov/30905737/)).
 
 All models in this folder were implemented in R and solved using `mrgsolve`. See [Setup](#r-setup-section) for more information. 
-
-Here we list some key assumptions that goes into the model: 
-
-- Cell trafficking between bone marrow and other organs were instantaneous. 
-- The total number of proliferating long-term hematopoietic stem cells (i.e. LT-HSC) was a fixed number.
-- Differentiation of cells was irreversible. 
-- Proliferation and differentiation dynamics of progenitor cells were comparable between mouse and human. 
-- Reticulocytes and red blood cells did not proliferate. 
-- Many the rates, e.g. proliferation rate of cells, globin synthesis rate, were constants. 
-- Globin synthesis rates were linearly correspond to gene copy number. 
-- In sickle cell models, the vector copy number per genome in a transduced CD34+ cell is 0.5. That is to say, for each transduced cell, there is 1 vector.
-- The oxygen saturation on adult hemoglobin that carries sickle cell mutation (HbS) is 68%, healthy/ (with or without T87Q mutation) adult hemoglobin (HbA) is 74%, fetal hemoglobin (HbF) is 88%. Hemoglobin A2 (HbA<sub>2</sub>) carries no significant amount of oxygen in healthy human. 
-- T cell dynamics were different between adult mice, young mice, and human. 
 
 
 # Implementation <a id='human-scd-implementation'></a> and validation of red blood cell differentiation in human 
@@ -90,14 +77,13 @@ Compare to the model described in [Zheng et al., 2021](https://ascpt.onlinelibra
     <img src="https://latex.codecogs.com/svg.image?\frac{d}{dt}&space;\beta_{RET0}&space;=&space;k_{syn\beta}&space;\cdot&space;RET_0&space;-&space;(k_{deg\beta}&space;&plus;&space;k_{RET2RBC})&space;\cdot&space;\beta_{RET0}&space;-&space;k_{on\alpha\beta}&space;\cdot&space;\alpha_{RET0}&space;\cdot&space;\beta_{RET0}&space;/V_{RET0}&space;&plus;&space;k_{off\alpha\beta}&space;\cdot&space;\alpha\beta_{RET0}" title=""  width="600" />
 
     
-    In this equation, the left side and
+    In this equation, the 
     <img src="https://latex.codecogs.com/svg.image?k_{syn\beta}&space;\cdot&space;RET_0&space;" title="k_{syn\beta} \cdot RET_0 " /> represented mass change over time, but 
     <img src="https://latex.codecogs.com/svg.image?k_{on\alpha\beta}&space;\cdot&space;\alpha_{RET0}&space;\cdot&space;\beta_{RET0}&space;/V_{RET0}&space;" title="" /> 
-    and 
-    <img src="https://latex.codecogs.com/svg.image?k_{off\alpha\beta}&space;\cdot&space;\alpha\beta_{RET0}" title="" /> 
-    were concentration changes over time. 
+    was concentration changes over time. 
 
     To correct this mismatch, we changed the equation into 
+
     <img src="https://latex.codecogs.com/svg.image?\frac{d}{dt}&space;\beta_{RET0}&space;=&space;k_{syn\beta}&space;\cdot&space;RET_0&space;-&space;(k_{deg\beta}&space;&plus;&space;k_{RET2RBC})&space;\cdot&space;\beta_{RET0}&space;-&space;k_{on\alpha\beta}&space;\cdot&space;\alpha_{RET0}&space;\cdot&space;\beta_{RET0}&space;&plus;&space;k_{off\alpha\beta}&space;\cdot&space;\alpha\beta_{RET0}&space;\times&space;V_{RET0}" title="\frac{d}{dt} \beta_{RET0} = k_{syn\beta} \cdot RET_0 - (k_{deg\beta} + k_{RET2RBC}) \cdot \beta_{RET0} - k_{on\alpha\beta} \cdot \alpha_{RET0} \cdot \beta_{RET0} + k_{off\alpha\beta} \cdot \alpha\beta_{RET0} \times V_{RET0}" /> 
 
     Similar changes were carried out in all the globin differential equations. 
@@ -124,7 +110,7 @@ Compare to the model described in [Zheng et al., 2021](https://ascpt.onlinelibra
     In addition, this change was overall in line with observed hemoglobin synthesis rate.
     In [Hibbert et al., 2001](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4457298/), the hemoglobin synthesis rate in rat was described as ~ 0.11-0.42mg.g<sup>-1</sup>.day<sup>-1</sup>. Assuming human had the same synthesis rate, a body of 70kg, and 240 billions of reticulocytes (number estimated based on [Koepke and Koepke, 1986](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1365-2257.1986.tb00093.x) that number of reticulocyte is 1/100 of number of red blood cells), then human's supposed to have a hemoglobin synthesis rate between <img src="https://latex.codecogs.com/svg.image?5.9&space;\times&space;10^{-7}" title="5.9 \times 10^{-7}" /> and <img src="https://latex.codecogs.com/svg.image?2.2&space;\times&space;10^{-6}" title="2.2 \times 10^{-6}" /> nmol.cell<sup>-1</sup>day<sup>-1</sup>. By the assumption that synthesis rates between <img src="https://latex.codecogs.com/svg.image?\alpha, &space;\beta, &space; \gamma, &space; \delta" title=" " /> globins were 1: 0.5: 0.03: 0.04, then the synthesis rate for <img src="https://latex.codecogs.com/svg.image?\alpha" title=" " />-globin should be in the range of <img src="https://latex.codecogs.com/svg.image?3.8&space;\times&space;10^{-7}" title="3.8 \times 10^{-7}" /> to <img src="https://latex.codecogs.com/svg.image?1.4&space;\times&space;10^{-6}" title="1.4 \times 10^{-6}" /> nmol.cell<sup>-1</sup>day<sup>-1</sup>.
     
-    Moreover, in SCD patients, it was reported that Hb synthesis rate averages 0.2g.kg<sup>-1</sup>day<sup>-1</sup> ([Hibbert et al., 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4084935/)). This converted to <img src="https://latex.codecogs.com/svg.image?\alpha" title=" " />-globin synthesis rate of <img src="https://latex.codecogs.com/svg.image?6.8&space;\times&space;10^{-7}" title=" " /> nmol.cell<sup>-1</sup>day<sup>-1</sup>, close to the value we identitified. 
+    Moreover, in SCD patients, it was reported that Hb synthesis rate averages 0.2g.kg<sup>-1</sup>day<sup>-1</sup> ([Hibbert et al., 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4084935/)). This converted to <img src="https://latex.codecogs.com/svg.image?\alpha" title=" " />-globin synthesis rate of <img src="https://latex.codecogs.com/svg.image?6.8&space;\times&space;10^{-7}"> nmol.cell<sup>-1</sup>day<sup>-1</sup>, close to the value we identitified. 
     
     ## Model validation
 
@@ -134,40 +120,39 @@ Compare to the model described in [Zheng et al., 2021](https://ascpt.onlinelibra
 
        A summary table of steady state value was as follows. These values were overall in line with what is observed in human ([Hibbert et al., 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4084935/)).
 
-        |                | RBC (#/uL) | Hb (g/dL) | venous oxygen (mL/dL) | Adult hemoglobin (g/dL) |
-        | -----------    | -----------|-----------| --------------------- | ---------------- |
-        | Healthy person | 4.2M       | 14.1      |  13.2                 | 12.3 (HbA)       |
-        | SCD patients   | 1.8M       | 7.7       |  6.6                  | 6.8 (HbS)        |
-
-        We also presented how the system reached these equilibria, starting with 1 HSC. Similar figures were also presented in  [Zheng et al., 2021](https://ascpt.onlinelibrary.wiley.com/doi/full/10.1002/psp4.12638) Figure 4. 
-
-        ![healthy_sickle](img/scd_healthy_sickle.png)
+        |                | RBC (<img src="https://latex.codecogs.com/svg.image?\times&space;10^{6}">/uL) | RBC Reference number ([Hibbert et al., 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4084935/)) (<img src="https://latex.codecogs.com/svg.image?\times&space;10^{6}">/uL) | Hb (g/dL) | Hb Reference number ([Hibbert et al., 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4084935/)) | venous oxygen (mL/dL) | 
+        | -----------    | -------| ------- |----------| ---      | --------------------- | 
+        | Healthy person | 4.2    | 4.0-4.7 |12.3 (HbA)      | 11.2-13.7 (HbA)| 13.2                 | 
+        | SCD patients   | 1.8    | 0.2-1.4 |6.8 (HbS)       | 6.6-11.1 (HbS)| 6.6                  | 
 
 
-    2. Dynamics after a sickle cell patient goes through lentiviral-induced hematopoietic stem cell transplant, as reported in [Ribeil et al., 2017](https://www.nejm.org/doi/full/10.1056/nejmoa1609677).
-
-    In this case, we compared 4 simulated variables with observed data after the transplant: 
+    2. Dynamics of Hb normalization after HSC transplantation in a SCD patient ([Ribeil et al., 2017](https://www.nejm.org/doi/full/10.1056/nejmoa1609677)). In this case, we compared 4 simulated variables with observed data after the transplant: 
     
     - Total RBC count
     - Hemoglobin (Hb) concentration, both HbS and HbA with T87Q mutation (the transgene carried by lentivirus). 
     - reticulocytes (RET) count
     - Hb concentration in RBC
 
-    The simulation results as well as clinical observation were shown as follows. Overall, the steady states of simulation and patients were similar, though the RBC and Hb recovery dynamics is a little off. This might be due to infusion this patient received prior to receiving ex-vivo gene therapy. These infused RBCs/ Hb are present for at least 3 months after gene therapy, judging by HbA level in patient blood. 
+    The simulation results as well as clinical observation were shown as follows. Overall, the steady states of simulation and patients were similar, though the RBC and Hb recovery dynamics is a little off. This might be due to infusion this patient received prior to receiving ex-vivo gene therapy. These infused RBCs/ Hb were present for at least 3 months after gene therapy, judging by HbA level in patient blood. 
     
-    Note that the predicted total RET count (cyan line, top right panel) correspond well to the observed data. This indicated the model probably work well upstream of RET. 
+    Note that the predicted total RET count (cyan line, top right panel) corresponded well to the observed data. This indicated the model probably worked well upstream of RET. 
     
-    Note that the observed HbS and HbA<sup>T87Q</sup> almost converged at the steady state. This would make sense if any of the following cases were true: 1. the VCN per genome was higher than what is assumed; 2. the conditioning strength was greater than assumed;  3. the DNA segment encodes HbA<sup>T87Q</sup> was more accessible than the DNA fragment that encodes HbS, leading to higher transcription and translation rates of HbA<sup>T87Q</sup> than HbS in transduced cells. 
-
     ![Ribeil et al., 2017](img/scd_Ribeil2017.png)
 
 # Scale the HSC -> RBC differentiation model from human to mouse
 
-The goal of this step was to obtain a HSC -> RBC differentiation model in mouse, so that we could eventually incorporate granulocytes and lymphocyte dynamics based on published model. We'd like to have a model in mouse because there are more literature data related to HSC differentiation in mouse. 
+The goal of this step was to obtain a HSC -> RBC differentiation model in mouse, so that we could eventually incorporate granulocytes and lymphocyte dynamics based on published model. We'd like to have a model in mouse because there were more literature data related to HSC differentiation in mouse. 
 
 The graphic summary of the model was as follows. Here, we assumed the feedback impact on CFU-E dynamics and Hb saturation level in mouse were comparable to human.
 
-![](img/mouse_erythrocyte_model.png)
+<figure>
+<figcaption align="center"> Mouse HSC -> RBC Differentiation Diargram </figcaption>
+  <img
+  src=img/mouse_erythrocyte_model.png
+  alt="the model diagram for HSC->RBC differentiation in mouse"
+  align="center">
+</figure>
+
 
 This model was based on the following adjustments:
 
@@ -188,13 +173,13 @@ This model was based on the following adjustments:
 
     - Common myeloid progenitors (CMP) number of division. The amplification was decreased to 8. It was estimated based on the flux from in and out of CMP. 
 
-        - Influx. This is from MPP. Amongst all the efflux from MPP, the ratio between CMP : CLP is 1:180 ([Busch et al., 2015](https://www.nature.com/articles/nature14242)), thus we could assume ~ 114k of MPP goes to CMP per day.  
+        - Influx. This is from MPP. Amongst all the efflux from MPP, the ratio between CMP : common lymphoid progenitor (CLP) is 1:180 ([Busch et al., 2015](https://www.nature.com/articles/nature14242)), thus we could assume ~ 114k of MPP goes to CMP per day.  
     
         - Efflux. This was based on the estimation from RBC dynamics. 
         
         Assuming mouse RBC lifespan = 40 days, RBC count = 10M per uL, with 2mL blood, then the total RBC count in mouse = 10M * 2k = 20B. For each day, the RBC death was 20B/ 40 = 500M. Assuming 32 times amplification at CFU-E stage and 16 times of amplification at BFU-E stage, we calculated that CMP efflux to BFU-E ~800k. 
 
-        With influx:efflux ratio ~ 8, we estimated that CMP has 3 times of division (i.e. amplification = 8). 
+        With influx:efflux ratio ~ 8, we estimated that CMP underwent 3 times of division (i.e. amplification = 8). 
 
 3. Other modifications
 
@@ -203,15 +188,15 @@ This model was based on the following adjustments:
     - Volumes of RET and RBC.  The scaled down volume of RET/ RBC was 0.05 * 10<sup>-12</sup> L. This number was calculated based on RBC diameter data reported in [Fukuda et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5658564/). This number was also in line with what is reported in [Raabe et al., 2011](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3189672/) and [Bollinger and Everds, 2012](https://www.sciencedirect.com/science/article/pii/B9780123820082000143). 
 
 
-    - <img src="https://latex.codecogs.com/svg.image?\alpha" title="" />-globin synthesis rate. It was reduced to  <img src="https://latex.codecogs.com/svg.image?3.8&space;\times&space;10^{-7}" title="" /> nmol.cell<sup>-1</sup>day<sup>-1</sup>. The assumption was that total Hb synthesis in human, mouse, and rats were comparable; thus, Hb synthesis rate per cell in mouse should be reduced because there were more numerous in mouse. In addition, mouse RBCs were smaller, thus should have less hemoglobin synthesis capacity.
+    - <img src="https://latex.codecogs.com/svg.image?\alpha" title="" />-globin synthesis rate was reduced to  <img src="https://latex.codecogs.com/svg.image?3.8&space;\times&space;10^{-7}" title="" /> nmol.cell<sup>-1</sup>day<sup>-1</sup>. This adjustment was made due to mice were reported to have more RBCs. 
 
 ## Model validation
 
-Here we used both steady state value and RBC recovery dynamics after stem cell and progenitor transplant to validate out model. 
+Here we used both steady state values and RBC recovery dynamics after stem cell and progenitor transplant to validate our model. 
 
 Simulated steady state values and their corresponding physiological values in mouse were summarized as follows. Note that all data from [Bae et al., 2019](https://www.nature.com/articles/s41467-019-11386-4) were adjusted to account for the fact that its BM cells were isolated from tibia and femur, bones that accounted for ~14% of total bone marrow cells ([Colvin et al., 2004](https://www.nature.com/articles/2403268)). We assumed that total bone marrow cell count ~ 500M, and bone marrow cells from tibia and femur was ~60-80M ([Swamydas et  al., 2013](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3732092/)). 
 
-| Readout type           |    predicted number  | Ref number |
+| State Variable           |    Predicted value  | Reference value |
 | -----------     |   --------- |  -----------  |
 | RET count  (#/uL) | 479k      | 200 - 500k  ([Bollinger and Everds, 2012](https://www.sciencedirect.com/science/article/pii/B9780123820082000143)) |
 | RBC count  (#/ul) |  9.5M      | 10.2M ([Fukuda et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5658564/)) |
@@ -221,52 +206,52 @@ Simulated steady state values and their corresponding physiological values in mo
 | CMP               |   913k   |  755k- 3M ([Bae et al., 2019](https://www.nature.com/articles/s41467-019-11386-4), [Dong et al., 2019](https://www.mdpi.com/2073-4409/8/9/951/htm), [Busch et al., 2015](https://www.nature.com/articles/nature14242))  |
 | CFU-E amplification time |    32.8 | 16-32 ([Palis, 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3904103/)) |   
 
-The discrepancy on the MPP count between simulated and observed values might be due to current model only tracks MPP that will differentiate into the erythroid lineage. These MPPs accounted ~20% of total MPP ([Pietras et al., 2015](https://www.sciencedirect.com/science/article/pii/S193459091500212X), [Wilson et al., 2008](https://www.cell.com/cell/pdf/S0092-8674(08)01386-X.pdf)). 
+The discrepancy between predicted and observed MPP values could be attributed to the fact that the current model only considered MPP that were part of the erythroid lineage, which represented ~20% of total MPP. ([Pietras et al., 2015](https://www.sciencedirect.com/science/article/pii/S193459091500212X), [Wilson et al., 2008](https://www.cell.com/cell/pdf/S0092-8674(08)01386-X.pdf)). 
 
 
-We then compared the dynamics of cell reconstitution after stem cell and progenitor transplants in mouse. Data was obtained from [Boyer et al., 2019](https://pubmed.ncbi.nlm.nih.gov/30905737/). Briefly, these mice went through sublethal radiation conditioning before being transplanted with a fixed number of GFP-expressing stem cells/ progenitor. 
+We then compared the dynamics of cell reconstitution after stem/ progenitor cells transplants in mouse. Data was obtained from [Boyer et al., 2019](https://pubmed.ncbi.nlm.nih.gov/30905737/). Briefly, these mice went through sublethal radiation conditioning before being transplanted with a fixed number of GFP-expressing stem cells/ progenitor. 
 
-Here, we assume the sublethal irradiation leads to 10% - 50% loss of progenitor cells in bone marrow. 
+Here, we assumed the sublethal irradiation leads to 10% - 50% loss of progenitor cells in bone marrow. 
 
 ![](img/mouse_RBC_HSCT_MPPT.png)
 
-We noticed the steady state of HSC transplant was overall similar to reported data, though the dynamics is slower. This might be due to HSC proliferate faster after a reduction in number [Busch et al., 2015](https://www.nature.com/articles/nature14242). The dynamics after MPP transplant tracked observed data well. 
+We noticed the steady state of HSC transplant was overall similar to reported data, though the dynamics is slower. This might be due to HSC proliferating faster after a reduction in their number [Busch et al., 2015](https://www.nature.com/articles/nature14242). The dynamics after MPP transplantation tracked observed data well. 
 
 # Incorporate granulocytes and lymphocytes into the mouse HSC differentiation model 
 
-The main incentive to include lymphoid dynamics is due to our interest in adopt this model for gene therapy for immune deficiency diseases. Granulocytes were included as placeholder so that the MPP count would match observed data. Thus, we took very different approaches between myeloid and lymphoid branches: we built a coarse granulocyte differentiation model follow the differentiation map MPP -> CMP -> GMP -> granulocytes (GM), while developing a more physiologically-based lymphoid branch. 
+The main reason for including lymphoid dynamics is to be able to use this model for gene therapy in people with immune deficiencies. Granulocytes were included as placeholder so that the MPP count would match observed data. Thus, we took very different approaches between myeloid and lymphoid branches: we built a coarse granulocyte differentiation model follow the differentiation map MPP -> CMP -> GMP -> granulocytes (GM), while developing a more physiologically-based lymphoid branch. 
 
-The graphic summary of the model was provided as follows.
+The schema of the mouse model was provided as follows.
 
 ![](img/mouse_full_model.png)
 
 
 ## Incorporate GMP and granulocytes
 
-Here, we only considered 2 layers: granulocyte (GM) and its progenitor cells (GMP) ([Ferrari et al., 2020](https://www.nature.com/articles/s41576-020-00298-5)). GMP was differentiated from CMP. 
+Here, we only considered 2 layers: granulocytes (GM) and granulocyte progenitor cells (GMP) ([Ferrari et al., 2020](https://www.nature.com/articles/s41576-020-00298-5)). 
 
-Parameter adjustment & selections were listed as follows.
+Parameter values and adjustments were as follows.
 
-- Differentiation from CMP to GMP. This number was set to be 2.5 <sup>-1</sup>, in the range of 0.04-4 day<sup>-1</sup> reported in [Busch et al., 2015](https://www.nature.com/articles/nature14242). 
+- Differentiation rate from CMP to GMP. This value was set to be 2.5 day<sup>-1</sup>., in the range of 0.04-4 day<sup>-1</sup> reported in [Busch et al., 2015](https://www.nature.com/articles/nature14242). 
 
 - Mean residence time of GMP. This was set to be 0.12 day ([Busch et al., 2015](https://www.nature.com/articles/nature14242)). 
 
-- Turnover of granulocytes. It was indicated that, on average, GM has lifespan of 6-8 hours in mouse, monkey, and human ([Summers et al., 2010](https://pubmed.ncbi.nlm.nih.gov/20620114/), [He et al., 2018](https://www.jimmunol.org/content/200/12/4059), [Galbraith et al., 1965](https://ashpublications.org/blood/article/25/5/683/37897/Patterns-of-Granulocyte-Kinetics-in-Health)). This translated to death rate ~ 3-4 day<sup>-1</sup>. 
+- Turnover of granulocytes. This value was set to be 3 day<sup>-1</sup>. It was based on GM lifespan of 6-8 hours in mouse, monkey, and human ([Summers et al., 2010](https://pubmed.ncbi.nlm.nih.gov/20620114/), [He et al., 2018](https://www.jimmunol.org/content/200/12/4059), [Galbraith et al., 1965](https://ashpublications.org/blood/article/25/5/683/37897/Patterns-of-Granulocyte-Kinetics-in-Health)). This translated to death rate ~ 3-4 day<sup>-1</sup>. 
 
-- Amplification at ST-HSC and MPP. MPP amplification round was increased from 280 to 450. This number was the upper bound reported in [Busch et al., 2015](https://www.nature.com/articles/nature14242). ST-HSC amplification number was increased to 90. This number was higher than the number reported in [Busch et al., 2015](https://www.nature.com/articles/nature14242). However, this might be due to [Busch et al., 2015](https://www.nature.com/articles/nature14242) and [Zheng et al., 2021](https://pubmed.ncbi.nlm.nih.gov/34139105/) uses different numbers of LT-HSC for parameter estimation.
+- Amplification at ST-HSC and MPP. MPP amplification round was increased from 280 to 450, the upper bound reported in [Busch et al., 2015](https://www.nature.com/articles/nature14242). ST-HSC amplification number was increased to 90. This number was 1.5 times higher than the number reported in [Busch et al., 2015](https://www.nature.com/articles/nature14242). However, this might be due to [Busch et al., 2015](https://www.nature.com/articles/nature14242) and [Zheng et al., 2021](https://pubmed.ncbi.nlm.nih.gov/34139105/) uses different numbers of LT-HSC for parameter estimation.
 
 - Amplification from GMP to GM. This parameter assumed to be 32 because there were 4 additional layers of mitotic progenitors between GMP and neutrophil, the most abundant granulocytes ([Hong, 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5662779/)). Assuming each layer of mitotic progenitors came with additional round of cell division, the amplification between GMP & GM would be 2<sup>5</sup> = 32.
 
-- Granulocyte count in mouse blood. This number was reported to ~ 6k per uL ([Nemzek et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11713907/)).Assuming mouse blood volume ~ 2mL, the total number of GM in mouse would be ~ 12 millions. Note that this number may vary hugely between different mouse strings ([von Vietinghoff and Ley, 2008](https://www.jimmunol.org/content/181/8/5183)). 
+- Granulocyte count in mouse blood. This number was reported to ~ 6k/uL ([Nemzek et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11713907/)).Assuming mouse blood volume ~ 2mL, the total number of GM in mouse would be ~ 12 millions. Note that this number may vary hugely between different mice ([von Vietinghoff and Ley, 2008](https://www.jimmunol.org/content/181/8/5183)). 
 
 ## Incorporate lymphoid arms
 
-The B cell and T cell development models were taken from literature. To link these literature models with our model, we introduce common lymphoid progenitors (CLP). 
+The B cell and T cell development models were taken from literature. We incorporated common lymphoid progenitors (CLP) described in [Busch et al., 2015](https://www.nature.com/articles/nature14242) to link these literature models with our model.
 
 
 ### Incorporate common lymphoid progenitors
 
-To incorporate common lymphoid progenitor (CLP), a progenitor cell that was derived from multipotent progenitor (MPP) cells, we took parameters of differentiation rate, proliferation rate, and death rate from [Busch et al., 2015](https://www.nature.com/articles/nature14242). The parameter of CLP exported to thymus was estimated based on [Zlotoff and Bhandoola, 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3076003/).
+To incorporate common lymphoid progenitor (CLP), a progenitor cell that was derived from multipotent progenitor (MPP) cells, we took parameters of differentiation rate, proliferation rate, and death rate from [Busch et al., 2015](https://www.nature.com/articles/nature14242). The rate for CLP exported to thymus was estimated based on [Zlotoff and Bhandoola, 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3076003/), which estimated that <10 CLP being exported to thymus per day.
 
 
 ### Incorporate B cell dynamics
