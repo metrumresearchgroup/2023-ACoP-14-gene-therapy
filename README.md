@@ -251,27 +251,27 @@ The B cell and T cell development models were taken from literature. We incorpor
 
 ### Incorporate common lymphoid progenitors
 
-To incorporate common lymphoid progenitor (CLP), a progenitor cell that was derived from multipotent progenitor (MPP) cells, we took parameters of differentiation rate, proliferation rate, and death rate from [Busch et al., 2015](https://www.nature.com/articles/nature14242). The rate for CLP exported to thymus was estimated based on [Zlotoff and Bhandoola, 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3076003/), which estimated that <10 CLP being exported to thymus per day.
-
+To incorporate common lymphoid progenitor (CLP), a progenitor cell that was derived from multipotent progenitor (MPP) cells, we took parameters of differentiation rate, proliferation rate, and death rate from [Busch et al., 2015](https://www.nature.com/articles/nature14242). 
 
 ### Incorporate B cell dynamics
 
-The B cell model was taken from [Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full). The implementation and documentation of this model is available in [B cell folder](../Bcell/). 
+The B cell model was taken from [Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full). The schema was as follows. 
 
-Additional 2 divisions are assumed between CLP and propreB. This number was tuned to match the cell influxes into the propreB compartments that are reported in [Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full).
+![diagram_shahaf2016](img/Diagram_shahaf2016.jpg)
 
-In addition, we used the parameters that is derived from progenitor depleted mice, based on the experimental procedure described in [Busch et al., 2015](https://www.nature.com/articles/nature14242). 
+Additional 2 divisions are assumed between CLP and a B cell progenitor, propreB. This number was tuned to match the cell influxes into the propreB compartments that are reported in [Shahaf et al., 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00077/full). 
 
 ### Incorporate T cell dynamics
 
-The T cell model was taken from [Thomas-Vaslin et al., 2008](https://www.jimmunol.org/content/180/4/2240.long). The implementation and details of verification can be found in [T cell folder](../Tcell/).
+The T cell model was taken from [Thomas-Vaslin et al., 2008](https://www.jimmunol.org/content/180/4/2240.long). The schema was as follows. 
 
+![diagram_thomas2008](img/Diagram_thomas2008.png)
 
-The additional 32 times of amplification between CLP and double negative (DN) cells was estimated based on the assumption that there were a round of division when CLP differentiate into early thymic progenitors (ETP), and ETPs divided 8 times in thymus before differentiate into DNs ([Seddon and Yates, 2018](https://pubmed.ncbi.nlm.nih.gov/30129206/)). Note that in our model, we omit ETP for simplicity.
+The additional 512 times of amplification between CLP and double negative (DN) cells was estimated based on the assumption that there were a round of division when CLP differentiate into early thymic progenitors (ETP), and ETPs divided additional 8 times in thymus before differentiate into DNs ([Seddon and Yates, 2018](https://pubmed.ncbi.nlm.nih.gov/30129206/)). Note that in our model, we omit ETP for simplicity.
 
 
 The rate for CLP to be exported to thymus was unknown, presumably because this number was very small thus hard to observe in experimental setting. Thus, we tuned this rate to fit with observed data from 2 different source: 
-1. the CLP count that exported to thymus should be ~ 10 cells per day ([Zlotoff and Bhandoola, 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3076003/));
+1. the CLP count that exported to thymus should < 10 cells per day ([Zlotoff and Bhandoola, 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3076003/));
 2. naive T cell count should be less than 1700 cells per uL blood at steady state ([Boyer et al., 2019](https://pubmed.ncbi.nlm.nih.gov/30905737/)); 
 
 A parameter scan suggested that this rate should be <img src="https://latex.codecogs.com/svg.image?2.5\times 10^{-4}" title=" " />day<sup>-1</sup>. 
@@ -281,21 +281,21 @@ A parameter scan suggested that this rate should be <img src="https://latex.code
 
 ## Model validation
 
-### Steady state
+### Simulated cell counts at state state are within the range reported in the literature
 
 Simulated steady state and their corresponding physiological values were summarized as below. Overall, simulated steady state of the cells was consistent with what is observed in literature. 
 
-| Cell type | Cell count   | Ref number | 
+| Cell type | Simulated cell count   | Reference cell count | 
 | --------- | ------------ | ---------- |
 | MPP       |   60k        |  75k-92k ([Bae et al., 2019](https://www.nature.com/articles/s41467-019-11386-4), [Dong et al., 2019](https://www.mdpi.com/2073-4409/8/9/951/htm))  |
 | CMP       |   2M         | 755k- 3M ([Bae et al., 2019](https://www.nature.com/articles/s41467-019-11386-4), [Dong et al., 2019](https://www.mdpi.com/2073-4409/8/9/951/htm), [Busch et al., 2015](https://www.nature.com/articles/nature14242))  |
 | GMP       |   757k       | ~1M ([Bae et al., 2019](https://www.nature.com/articles/s41467-019-11386-4)), ~3M([Dong et al., 2019](https://www.mdpi.com/2073-4409/8/9/951/htm)) |
-| GM        | 8.4k per uL  | 1.95-12.01k per uL ([Nemzek et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11713907/))  |
-| RET       | 498k per uL  | 200 - 500k  ([Bollinger and Everds, 2012](https://www.sciencedirect.com/science/article/pii/B9780123820082000143)) |
-| RBC       | 9.9M per uL  | 10.2M per uL ([Fukuda et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5658564/)) |
+| GM        | 8.4k/uL  | 1.95-12.01k/uL ([Nemzek et al., 2001](https://pubmed.ncbi.nlm.nih.gov/11713907/))  |
+| RET       | 498k/uL  | 200 - 500k/uL  ([Bollinger and Everds, 2012](https://www.sciencedirect.com/science/article/pii/B9780123820082000143)) |
+| RBC       | 9.9M/uL  | 10.2M/uL ([Fukuda et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5658564/)) |
 | Hb conc   | 13.2g/dL     | 13.6 - 16.4g/dL ([Raabe et al., 2011](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3189672/)) |
-| Hb in RBC | 261g/dL      | 270-330g/dL  ([Bollinger and Everds, 2012](https://www.sciencedirect.com/science/article/pii/B9780123820082000143)) |
-| lymphocyte | 1.8k     | 0.12 - 24k ([JHU mouse facility](https://researchanimalresources.jhu.edu/wp-content/uploads/2017/09/2017JHPhenoCoreCBCmice.pdf)) |
+| Hb in RBC | 261g/L      | 270-330g/L  ([Bollinger and Everds, 2012](https://www.sciencedirect.com/science/article/pii/B9780123820082000143)) |
+| lymphocyte | 1.8k/uL     | 0.12 - 24k/uL ([JHU mouse facility](https://researchanimalresources.jhu.edu/wp-content/uploads/2017/09/2017JHPhenoCoreCBCmice.pdf)) |
 
 ### Dynamics after HSCT
 
@@ -304,25 +304,21 @@ The model was also validated by looking at the reconsititution dynamics of RBC, 
 ![dynamics_validation](img/mouse_RBC_T_B_HSCT.png)
 
 Overall, the RBC reconstitution was slower, as we observed in our previous simulation. The predicted B cell reconstitution was in the standard deviation of the observed data. 
-T cell recovery at a 50% conditioning strength (i.e. loss of 50% progenitors) appeared to match the early reconstitution dynamics the best, but a 30% conditioning yielded closer steady state. There are a couple of possible explanations for the discrepancy: 
-
-1. Difference between mice. We noticed that steady state T cell count had huge variability. In addition, the T cell model from [Thomas-Vaslin et al., 2008](https://www.jimmunol.org/content/180/4/2240.long) was developed for FVB mice, but C57BL/6J mice was used in experiments in [Boyer et al., 2019](https://pubmed.ncbi.nlm.nih.gov/30905737/). Lymphocyte counts were very different in these 2 types of mouse. For example, lymphocyte count in C57BL/6J mice averages ~4k per microliter of blood; in FVB mice, the count is 1-2k per microliter of blood, with significant gender difference. 
-
-2. Difference in thymus environment. Literature suggested different thymus environments (e.g. epithelialc cells, cytokines) were known to influence T cell development ([Velardi et al., 2021](https://www.nature.com/articles/s41577-020-00457-z)).
+T cell recovery at a 50% conditioning strength (i.e. loss of 50% progenitors) appeared to match the early reconstitution dynamics the best, but a 30% conditioning yielded closer steady state. 
 
 ## Adapting mouse model for younger mice
 
 Our eventual goal for the mouse model was to predict the ex-vivo gene therapy for ADA-SCID mice. One challenge was that many experiments were carried out on mice that were 14-18 days after birth to avoid potential systematic complications or death.
 
-However, in these very young mice, their naive T cell dynamics were different. They had higher thymic output, probably due to either a more lymphoid-biased differentation (i.e. higher MPP -> CLP rate), or faster proliferation in lymphoid progenitors ([Young et al., 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5068232/), [Baran-Gale et al., 2020](https://elifesciences.org/articles/56221)). 
+However, in these very young mice, their naive T cell dynamics were different. They had higher thymic output, probably due to either a more lymphoid-biased differentation (i.e. higher MPP -> CLP differentiation rate), or faster proliferation in lymphoid progenitors ([Young et al., 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5068232/), [Baran-Gale et al., 2020](https://elifesciences.org/articles/56221)). 
 
-Sensitivity analysis showed that the steady state peripheral blood T cell concentration was not sensitive to DN/ DP cell proliferation rates (data not shown). Thus, for simplicity, we tune the rate of MPP -> CLP. We use the CD4+ thymocyte as the benchmark. In prior simulation, this number was ~ 300k. In 15-day mice, it was ~780k ([Lee, 2018](https://theses.gla.ac.uk/31002/)). In addition, splenic B cell count was ~25.2M in these young mice ([Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/)).
+Sensitivity analysis showed that the steady state peripheral blood T cell concentration was not sensitive to DN/ DP cell proliferation rates (data not shown). Thus, for simplicity, we tune the MPP -> CLP differentiation rate. We use the CD4+ thymocyte as the benchmark. In prior simulation, this number was ~ 300k. In 15-day mice, it was ~780k ([Lee, 2018](https://theses.gla.ac.uk/31002/)). In addition, splenic B cell count was ~25.2M in these young mice ([Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/)).
 
 Our parameter scan suggested that increasing MPP -> CLP rate by 2.5-3.5 folds could address the discrepancy in steady state lymphocyte count between a 15-day mouse and 3-month old mice. 
 
 ![](img/mouse_15day_ada_scid.png)
 
-By choosing to increase MPP -> CLP rate by 3 folds, lymphocytes at steady state have higher counts. 
+By choosing to increase MPP -> CLP differentiation rate by 3 folds, lymphocytes at steady state have higher counts. 
 
 | Mouse | naive T per uL blood |  naive B per uL blood |
 | ----- | -------------------- | --------------------- |
@@ -332,17 +328,17 @@ By choosing to increase MPP -> CLP rate by 3 folds, lymphocytes at steady state 
 
 ## Adapting mouse model for Adenosine deaminase deficiency Severe combined immunodeficiency (ADA-SCID) mouse
 
-ADA-SCID was caused by mutations in adenosine deaminase (ADA), an enzyme that was reported to be important for dADP, dATP degradation in cells. Lack of ADA resulted in dADP, dATP accumulation and toxicity to cells. ADA was universally expressed, but most active in lymphocytes ([Flinn et al., 2018](https://ojrd.biomedcentral.com/articles/10.1186/s13023-018-0807-5)).
+ADA-SCID is caused by mutations in adenosine deaminase (ADA), an enzyme that is reported to be important for dADP, dATP degradation in cells. Lack of ADA results in dADP, dATP accumulation and toxicity to cells. ADA is universally expressed, but most active in lymphocytes ([Flinn et al., 2018](https://ojrd.biomedcentral.com/articles/10.1186/s13023-018-0807-5)).
 
-ADA-SCID manifestation in mice included abnormal thymocyte. Double positive (DP) cells was reported to have increased apoptosis, though dynamics of DN cells was reported to be normal ([Whitmore and Gasper, 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00314/full)). In addition, the apoptosis and distribution of peripheral T cells appeared to be normal in ADA-SCID mice ([Apasov et al., 2001](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC209335/)). 
+ADA-SCID manifestation in mice included abnormal thymocyte. Double positive (DP) cells was reported to have higher apoptosis rate ([Whitmore and Gasper, 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00314/full)). In addition, the apoptosis and distribution of peripheral T cells appeared to be normal in ADA-SCID mice ([Apasov et al., 2001](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC209335/)). 
  
 ADA-SCID also resulted in impairment in B cell development. The most prominent phenotypes were on activated B cells, while mature naive B cells in the spleen was reported to have a higher death rate ([Whitmore and Gasper, 2016](https://www.frontiersin.org/articles/10.3389/fimmu.2016.00314/full), [Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/), [Aldrich et al., 2003](https://www.jimmunol.org/content/jimmunol/171/10/5562.full.pdf), [Prak, 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3366416/)).
 
-Thus, for our adaption, we focused on adjusting DP thymocyte and naive splenic B cell death rates. 
+Thus, for our adaptation, we focused on adjusting DP thymocyte and naive splenic B cell death rates. 
 
-To determine DP thymocyte death rate, we used percentage of DN cells amongst thymocytes as the benchmark. We chose this because this appeared to be the most robust readout, while other benchmarks like absolute progenitor/ lymphocytes counts appeared to have lots of variation ([Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/), [Blackburn et al., 1998](https://www.jbc.org/article/S0021-9258(17)47085-2/pdf), [Blackburn et al., 2000](https://rupress.org/jem/article/192/2/159/30028/Metabolic-Consequences-of-Adenosine-Deaminase), [Morreti et al., 2021](https://www.nature.com/articles/s41598-021-02572-w)). 
+To determine DP thymocyte death rate, we used percentage of DN cells amongst thymocytes as the benchmark. We chose this because this appeared to be the most robust readout, while other benchmarks like absolute progenitor/ lymphocytes counts were highly variable ([Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/), [Blackburn et al., 1998](https://www.jbc.org/article/S0021-9258(17)47085-2/pdf), [Blackburn et al., 2000](https://rupress.org/jem/article/192/2/159/30028/Metabolic-Consequences-of-Adenosine-Deaminase), [Morreti et al., 2021](https://www.nature.com/articles/s41598-021-02572-w)). 
 
-In control mice, DN cell was reported to be less than 5% of total thymocytes; in ADA-SCID mice, this number was ~ 20% ([Morreti et al., 2021](https://www.nature.com/articles/s41598-021-02572-w)). Parameter scan indicated that that DP death rate should be increased to 2 day<sup>-1</sup>. 
+In control mice, DN cell was reported to be less than 5% of total thymocytes; in ADA-SCID mice, this number was ~ 20% ([Morreti et al., 2021](https://www.nature.com/articles/s41598-021-02572-w)). A parameter scan indicated that that DP death rate should be increased to 2 day<sup>-1</sup>. 
 
 ![](img/mouse_dpdeathscan.png)
 
@@ -350,18 +346,18 @@ To determine splenic mature B cell death rate, we looked at splenic B cell count
 
 ![](img/mouse_BMspl_dscan.png)
 
-Steady state lymphocyte in periphral blood was predicted to have a significant drop in ADA-SCID mouse model. This number was more overall consistent with observations in [Blackburn et al., 1998](https://www.jbc.org/article/S0021-9258(17)47085-2/pdf).
+Simulation predicted a drop in steady state lymphocyte in peripheral blood in ADA-SCID mouse compared to normal mouse.  
 
-| Mouse    | Lymphocyte in periphral blood        |
-| -------- | ------------------------------------ |
-| Control  | 5.6k per uL                          |
-| ADA-SCID |   776 per uL                         |
+| Mouse    | Predicted lymphocyte in peripheral blood | Reference lymphocyte in peripheral blood ([Blackburn et al., 1998](https://www.jbc.org/article/S0021-9258(17)47085-2/pdf)) |
+| -------- | ---------- | ------- |
+| Control  | 5.6k/uL    | 3.2k/uL |
+| ADA-SCID |   776/uL   | 1k/uL   |
 
 
 
-## Simulation ex-vivo gene therapy on ADA-SCID mice. 
+## Simulation of ex-vivo gene therapy in ADA-SCID mice. 
 
-In [Carbonaro et al., 2012](https://pubmed.ncbi.nlm.nih.gov/22833548/), ex-vivo gene therapy was performed on mice that were either on enzyme replacement therapy (ERT) or not. However, we chose to focus on mice on ERT, as study showed that they had almost normal immune system ([Morreti et al., 2021](https://www.nature.com/articles/s41598-021-02572-w)).  In this study, authors isolated bone marrow cells from donor mice, transduced the cells with an average vector copy (VCN) at 0.99 +/- 0.76 (i.e. on average, each transduced cell carried 0.99 transgene) before infusing 5M cells back to the receiver mice.
+In [Carbonaro et al., 2012](https://pubmed.ncbi.nlm.nih.gov/22833548/), ex-vivo gene therapy was performed in mice that were either in enzyme replacement therapy (ERT) or not. We chose to focus on mice on ERT, as study showed that they had almost normal immune system ([Morreti et al., 2021](https://www.nature.com/articles/s41598-021-02572-w)).  In this study, authors isolated bone marrow cells from donor mice, transduced the cells with an average vector copy (VCN) at 0.99 +/- 0.76 (i.e. on average, each transduced cell carried 0.99 transgene) before infusing 5M cells back to the receiver mice.
 
 The receiver mice were conditioned on 200cGy radiation before receiving the cell infusion. 
 
@@ -369,15 +365,15 @@ The receiver mice were conditioned on 200cGy radiation before receiving the cell
 
 We assumed the conditioning resulted in 30% loss of all dividing/ differentiating progenitors in the bone marrow, and 80% loss in thymus. Fractions of each progenitor cells in transplanted bone marrow cells was estimated based on steady state bone marrow composition. 
 
-Overall, the simulation result was consistent with early data, and timing for zenith and nadir of VCN were overall consistent with observed data. In addition, simulations at steady state were also consistent with observed data. 
+Overall, the simulations at steady state were also consistent with observed data. 
 
 ![](img/mouse_adascidgtsimul.png)
 
 # Scale HSC differentiation model from mouse to human
 
-Here, we aimed to show how we scale this integrated mouse HSC differentiation model to human. 
+The mouse HSC differentiation model was scaled to human as follows. 
 
-Overall, we reverted some cell amplification round, mean residence time, and cell volume back to human. We adjusted CMP amplification time from 16 to 36 to compensate cells being diverged to myeloid lineage. 
+The parts of the model that were originally from human and scaled to mouse were reverted back to their original hman values. These included: erythoid cell amplications and Hb synthesis. We adjusted CMP amplification time from 16 to 36 to compensate cells being diverged to myeloid lineage. 
 
 ![](img/human_full_structure.png)
 
@@ -397,14 +393,17 @@ Since it was almost impossible to directly measure the rates of B cell developme
 
 Thus, the human bone marrow B cell capacity = 6M/500M * 700B = 8.4B. 
 
-
-In addition, we also increased propreB cell proliferation rate, as human B cell progenitor was observed to proliferate faster in vitro than being transplanted into mouse ([Kraus et al., 2013](https://pubmed.ncbi.nlm.nih.gov/24379121/)).
+In addition, we increased propreB proliferation rate to account for bigger bone marrow compartment in human.
 
 ## Scale T cell dynamics from mouse to human
 
 One of the major difference between mouse and human naive T cell dynamics is their source: in mouse, thymic output is the main source for naive T cell maintenance; in human, naive T cell proliferation in peripheral tissue and blood have a prominant role ([Famili et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5583695/), [Spits, 1994](https://pubmed.ncbi.nlm.nih.gov/8011206/)). Thus, we introduced naive T cell proliferation in periphery blood and tissues while kept most of the rates in T cell development in thymus the same [Thomas-Vaslin et al., 2008](https://www.jimmunol.org/content/180/4/2240.short). In addition, we also incorporated naive T cell entering and leaving lymph nodes. 
 
-Overall the model structure was shown as follows. Major adjustments were
+Model structure was as follows.
+
+<img src="img/human_naiveT.png" alt="model structure" width="500" >
+
+Major adjustments were
 
   + Separated lymph nodes from other tissues. We allowed naive T cells to enter peripheral tissues and lymph nodes with different rates. 
   + Introduced naive T cell proliferations in peripheral tissues and blood.
@@ -415,8 +414,6 @@ Overall the model structure was shown as follows. Major adjustments were
 
 
 In addition, amplification number of CLP after exported to thymus is increased a fold to compensate for human size.
-
-<img src="img/human_naiveT.png" alt="model structure" width="300" >
 
 
 All the T cell dynamics rates outside thymus were taken from [Sove et al., 2020](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12546). Note one issue was that this paper didn't provide rates for CD4+ naive T cells, so we mostly used CD8+ naive T cell rates, except the rate for naive CD4+ cells leaving peripheral tissues. This value was tuned to make the CD4+:CD8+ ratio in blood ~ 2 ([Benjamin et al., 2018](https://www.sciencedirect.com/science/article/pii/B9780323401395000838)), as showed below. 
@@ -432,14 +429,14 @@ Simulated steady state values and their corresponding physiological values were 
 |----|-----------|----------|
 | RBC count (per uL) | 3.9M | ~4M ([Pittman, 2011](https://pubmed.ncbi.nlm.nih.gov/21634070/)) |
 | Hb (g/dL) | 13.2 | 12-15 ([Pittman, 2011](https://pubmed.ncbi.nlm.nih.gov/21634070/)) |
-| Hb in RBC (g/dL) | 366 | ~330 ([Pittman, 2011](https://pubmed.ncbi.nlm.nih.gov/21634070/)) |
+| Hb in RBC (g/L) | 366 | ~330 ([Pittman, 2011](https://pubmed.ncbi.nlm.nih.gov/21634070/)) |
 | T cell count (per uL) | 662 | 1243 ([Alamooti et al., 2010](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.20912), note this number is not naive T cell specific) |
 | Thymic output (per day) | 32M | 10M - 2700M ([Bains et al., 2009](https://www.jimmunol.org/content/183/7/4329.long)), note the high thymic output happens in infancy |
 | B cell count (per uL) | 137 | 101 ([Perez-Andres et al., 2010](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.b.20547)) |
 |Granulocyte count (per uL) | 1.2k | 1-8k ([Yazdi, 2021](https://labs.selfdecode.com/blog/granulocytes/#:~:text=infections%20%5B27%5D.-,Granulocytes%20Normal%20Range,microliter%20(%C2%B5L)%20of%20blood.)) |
 
 
-We use data from [Ribeil et al., 2017](https://www.nejm.org/doi/full/10.1056/nejmoa1609677) for validation as well. The validation on blood cell/ hemoglobin reconstitution was similar to what we discussed before. 
+We use data from [Ribeil et al., 2017](https://www.nejm.org/doi/full/10.1056/nejmoa1609677) for validation as well. Note this is a simulation of dynamics of Hb and erythroid cells after HSC transplantation in a SCD patient. The validation on blood cell/ hemoglobin reconstitution was similar to what we discussed before. 
 
 ![](img/human_erythroid_validation.png)
 
@@ -457,9 +454,9 @@ The simulated blood T cell was close to observed number in [Sauer et al., 2012](
 
 # Ex-vivo gene therapy for ADA-SCID patient <a id='ada-scid-infant'></a>
 
-Data was obtained from [Aiuti et al., 2009](https://www.nejm.org/doi/pdf/10.1056/NEJMoa0805817). In our simulation, we focused on patient #1 because this was the only patient had no prior treatment or adversal event during the treatment. 
+Data was obtained from [Aiuti et al., 2009](https://www.nejm.org/doi/pdf/10.1056/NEJMoa0805817). we focused on patient #1 because it was the only patient without prior treatment or adverse events during treatment.
 
-We assumed this patient's body weight to be ~7.6kg, based on the patient's gender and age. This translated into a total ~65M of infused CD34+ cells. 
+We assumed this patient's body weight to be ~7.6kg, based on the patient's gender and age (as a seven-month old female). This translated into a total ~65M of infused CD34+ cells. 
 
 The simulation recaptured the reconstitution of granulocytes, B cells and T cells in patient's peripheral blood. 
 
@@ -467,7 +464,7 @@ The simulation recaptured the reconstitution of granulocytes, B cells and T cell
 
 # Challenges and uncertainties <a id='challenges'></a>
 
-Data availability has been the biggest challenge for model development. This was especially true for progenitor cells between stem cells and fully differentiated ones (e.g. RBC, B cells). In addition, many rates for cell differentiation and proliferation were not reported. Thus, we largely relied on steady state and parameter tuning to provide educated guesses for unreported rates. Here, we list all the parameters that are not directly taken from literature.
+Data availability has been the biggest challenge for model development. This was especially true for progenitor cells between stem cells and fully differentiated ones (e.g. RBC, B cells). In addition, many rates for cell differentiation and proliferation were not reported. Thus, we largely relied on steady state and parameter tuning to provide educated guesses for unreported rates. Here, we list all the parameters that were not directly taken from literature.
 
 - mouse
 
@@ -485,12 +482,12 @@ Data availability has been the biggest challenge for model development. This was
   + rate for CD4+ T cell exit peripheral tissues
 
 
-In addition, there are questions about the suitability of using this model for pediatric population. In our [simulation](#ada-scid-infant), we showed that our model was able to predict immune cell reconstitution on a 6-month old. We were surprised by this, since the HSC proliferation was built on the hypothesis that adult bone marrow can only carry certain amount of stem cells. It is not clear how applicable this hypothesis is in pediatric population. 
+In addition, there are questions about the suitability of using this model for pediatric population. In our [simulation](#ada-scid-infant), we showed that our model was able to predict immune cell reconstitution on a 7-month old. We were surprised by this, since the HSC proliferation was built on the hypothesis that adult bone marrow can only carry certain amount of stem cells. It is not clear how applicable this hypothesis is in pediatric population. 
 
 
 # Future work <a id='future-work'></a>
 
-1. Adapting the model to predict ex-vivo gene therapy outcome on transfusion-dependent <img src="https://latex.codecogs.com/svg.image?\beta" title=" " />-thalassemia. This can be achieved by modulating hemoglobin beta chain synthesis and RBC lifespan in the existing model. 
+1. Adapting the model to predict ex-vivo gene therapy outcome in transfusion-dependent <img src="https://latex.codecogs.com/svg.image?\beta" title=" " />-thalassemia. This can be achieved by modulating hemoglobin beta chain synthesis and RBC lifespan in the existing model. 
 
 2. Adapting the model to predict ex-vivo gene therapy outcome on pyruvate Kinase Deficiency (PKD). This would require the following adjustment in the model: 
 
@@ -509,9 +506,9 @@ In addition, there are questions about the suitability of using this model for p
 
 5. Further investigation on using this model for pediatric population. We've discussed this in the uncertainty part of the model. 
 
-6. Sensitivity analysis on the parameters that influences the dynamics of 
+6. Sensitivity analysis on the parameters that influences the dynamics of immuno cells reconstitution after HSCT/ ex-vivo gene therapy. 
 
-# Content <a id='content'></a>
+# Project contents <a id='content'></a>
 
 ## Files
 
@@ -547,7 +544,7 @@ In addition, there are questions about the suitability of using this model for p
 
 - data (source data from publications. See readme.txt in the folder for more details.)
 
-- julia (julia implementation of the integrated model in human. See README inside the folder for more details)
+- julia (Julia implementation of the integrated model in human. See README inside the folder for more details)
 
 # Setup<a id='r-setup-section'></a>
 

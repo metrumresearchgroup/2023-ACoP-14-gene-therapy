@@ -123,7 +123,7 @@ HbAconc = ggplot() +
   geom_point(data = hb_hbs, aes(x = month, y = Hbconc, color = 'obs, HbS')) + 
   geom_point(data = hb_hbaT87Q, aes(x = month, y = Hbconc, color = 'obs, HbA_T87Q')) + 
   geom_point(data = hb_total, aes(x = month, y = Hbconc, color = 'obs, total Hb')) + 
-  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(1, 15)) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(0, 15)) + 
   labs(y = 'hemoglobin conc (g/dL)', x = 'time (months)', color = '') + theme_bw() + theme(legend.position = "bottom")
 
 
@@ -131,7 +131,7 @@ RBCnum = ggplot() +
   geom_line(data = sim0, aes(x = time/30, y = RBCconc, color = 'sim')) +
   geom_point(data = RBC_ribeil, aes(x = month, y = RBC_in_millions * 1e6, color = 'obs')) + 
   labs(y = 'RBC count (#/uL)', x = 'time (months)', color = 'total RBC') + 
-  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(1, 15)) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15), limits = c(0, 15)) + 
   scale_y_continuous(limits = c(1, 4.5e6), breaks = c(1e6, 2e6, 3e6, 4e6), 
                      labels = c('1M', '2M', '3M', '4M')) + theme_bw() + theme(legend.position = "bottom")
 
@@ -145,7 +145,7 @@ RETnum = ggplot() +
 HbinRBCconc = ggplot() + 
   geom_line(data = sim0, aes(x = time/30, y = HbinRBC/10, color = 'sim')) + 
   geom_point(data = hbinrbc_ribeil, aes(x = month, y = HbinRBC, color = 'obs')) + 
-  scale_x_continuous(breaks = c(0,3,6,9,12,15),  limits = c(3, 15)) + 
+  scale_x_continuous(breaks = c(0,3,6,9,12,15),  limits = c(0, 15)) + 
   labs(y = 'Hb in RBC (g/dL)', x = 'time (months)', color = 'Hb conc in RBC') + theme_bw() + theme(legend.position = "bottom")
 
 png('img/human_erythroid_validation.png', width = 12, height = 6, units = 'in', res = 300) 
