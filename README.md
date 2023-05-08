@@ -312,7 +312,7 @@ Our eventual goal for the mouse model was to predict the ex-vivo gene therapy fo
 
 However, in these very young mice, their naive T cell dynamics were different. They had higher thymic output, probably due to either a more lymphoid-biased differentation (i.e. higher MPP -> CLP differentiation rate), or faster proliferation in lymphoid progenitors ([Young et al., 2016](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5068232/), [Baran-Gale et al., 2020](https://elifesciences.org/articles/56221)). 
 
-Sensitivity analysis showed that the steady state peripheral blood T cell concentration was not sensitive to DN/ DP cell proliferation rates (data not shown). Thus, for simplicity, we tune the MPP -> CLP differentiation rate. We use the CD4+ thymocyte as the benchmark. In prior simulation, this number was ~ 300k. In 15-day mice, it was ~780k ([Lee, 2018](https://theses.gla.ac.uk/31002/)). In addition, splenic B cell count was ~25.2M in these young mice ([Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/)).
+Sensitivity analysis showed that the steady state peripheral blood T cell concentration was not sensitive to DN/ DP cell proliferation rates (data not shown). Thus, for simplicity, we tuned the MPP -> CLP differentiation rate. We used the CD4+ thymocyte as the benchmark. In prior simulation, this number was ~ 300k. In 15-day mice, it was ~780k ([Lee, 2018](https://theses.gla.ac.uk/31002/)). In addition, splenic B cell count was ~25.2M in these young mice ([Blackburn and Kellems, 2005](https://pubmed.ncbi.nlm.nih.gov/15705418/)).
 
 Our parameter scan suggested that increasing MPP -> CLP rate by 2.5-3.5 folds could address the discrepancy in steady state lymphocyte count between a 15-day mouse and 3-month old mice. 
 

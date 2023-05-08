@@ -48,10 +48,12 @@ ggsave("img/human_cd4_peripheral_exit_rate_scan.png", plot = plot1, width = 10, 
 
 mod <- mread("model/human_erythroid_lymphoid_myeloid") %>% param(epsilon_spl = 0.032, delta_dp = 1e-6)
 sim0 <- mod %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500)
-
+print(sim0[c("RBCconc", "Bconc", "Tconc", "GMconc", "totalHb", "HbinRBC")])
 
 # steady state for a untreated ADA-SCID person
 sim00 <-  mread("model/human_erythroid_lymphoid_myeloid") %>% init(LT0 = 1200) %>% mrgsim(end = 1500) %>% filter(time == 1500)
+print(sim00[c("RBCconc", "Bconc", "Tconc", "GMconc", "totalHb", "HbinRBC")])
+
 ```
 
 # Human SCD HSCT transplant
@@ -150,6 +152,7 @@ HbinRBCconc = ggplot() +
 
 png('img/human_erythroid_validation.png', width = 12, height = 6, units = 'in', res = 300) 
 grid.arrange(HbAconc, RBCnum, RETnum, HbinRBCconc, ncol = 2)
+dev.off()
 ```
 
 
