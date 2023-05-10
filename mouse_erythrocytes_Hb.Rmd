@@ -1,3 +1,18 @@
+---
+title: "Development of integrated HSC model in mouse"
+output: html_document
+author: "Yuezhe Li"
+date: '2023-04-01'
+---
+
+# Goal
+
+To develop an integrated HSC differentiation model in mouse. 
+
+Steps: 
+1. scale HSC->RBC differentiation model from human to mouse
+2. incorporate granulocytes and lymphocytes dynamics
+
 
 # set up
 

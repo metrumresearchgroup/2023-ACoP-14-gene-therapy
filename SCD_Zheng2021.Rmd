@@ -1,8 +1,14 @@
 ---
-title: "SCD_Zheng2021"
+title: "Implementation of SCD model from Zheng et al., 2021"
 output: html_document
+author: "Yuezhe Li"
 date: '2023-02-06'
 ---
+
+# Goal
+
+To implement, verify, and simulate model published from Zheng et al., 2021
+https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12638
 
 # set up
 

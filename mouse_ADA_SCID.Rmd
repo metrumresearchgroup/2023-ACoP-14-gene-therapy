@@ -1,9 +1,15 @@
 ---
 title: "mouse_ADA_SCID"
 author: "Yuezhe Li"
-date: "2/6/2023"
+date: "4/2/2023"
 output: html_document
 ---
+
+
+# Goal
+
+To adjust the integrated model (mouse) for young and ADA mice; to predict vector copy dynamics after undergoing ex-vivo therapy. 
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

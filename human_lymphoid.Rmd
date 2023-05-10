@@ -1,13 +1,13 @@
 ---
 title: "scale mouse model to human"
 output: pdf_document
-author: "YL"
+author: "Yuezhe Li"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
 # Overview
 
-Goal: to scale an integrated model from mouse to human
+Goal: to scale an integrated model from mouse to human; to predict granulocytes and lymphocytes in patients underwent ex-vivo gene therapy.
 
 
 ```{r setup}

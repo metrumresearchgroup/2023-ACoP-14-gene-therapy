@@ -1,3 +1,7 @@
+# Author: Yuezhe LI
+# Date: 4/10/23
+# Content of the code: implementation of integrated HSC differentiation model (human version) in Julia, and demonstrate the simulation results between Julia and R are the same. 
+
 using DifferentialEquations, LinearAlgebra, ComponentArrays
 using Parameters: @unpack
 using DataFrames, CSV, DataFramesMeta, Plots
