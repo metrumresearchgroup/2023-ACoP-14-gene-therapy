@@ -10,6 +10,8 @@
 \usepackage{url}			% For \url
 \usepackage{epstopdf}	% Included EPS files automatically converted to PDF to include with pdflatex
 \usepackage{graphicx}
+\usepackage{setspace}
+\spacing{1}
 
 \usepackage[bitstream-charter]{mathdesign}
 \usepackage[T1]{fontenc}
@@ -99,11 +101,13 @@
 %%% Title %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {
 	\textbf{\textsf{\color{titlefgcol}{
+	\huge
 	  A multi-organ integrated QSP model for hematopoietic stem cell differentiation to predict the immune cell reconstitution in ex-vivo gene therapy
 	 }}}\vspace{.5em}
 }
 %%% Authors %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {
+\normalsize
 	Yuezhe Li$^1$, Eric Jordie$^1$, Tim Knab$^1$\\
 	{\smaller
 	  $^1$\textit{Metrum Research Group}
@@ -128,28 +132,44 @@
 
 
 \headerbox{Abstract}{name=abstract,column=0,row=0}{
+\footnotesize
 
-The differentiation of mammalian hematopoietic stem cells (HSCs) is complex and multi-scale, providing an opportunity for mathematical modeling and simulation to aid in mechanistic understanding and ultimately inform drug development efforts. Historically, mathematical models have been developed that were focused on the development of a subset of cells, such as red blood cells (RBCs) [1], B cells [2], and T cells [3]. However, mathematical models that encompass the overall cellular system’s complexity are rarely available. 
-
-Here, we develop an integrated quantitative systems pharmacology (QSP) model that characterizes multi-organ recapitulation of HSC differentiation by integrating literature models and adding novel features. The result is a more comprehensive representation of mammalian hematopoietic stem cell development. We demonstrate our integrated model can accurately capture the reconstitution of RBCs, B cells, and T cells following HSC transplant in mice. Moreover, the humanized model successfully predicted the reconstitution of granulocytes and lymphocytes  in patients with adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID) who underwent ex-vivo gene therapy. 
+The differentiation of mammalian hematopoietic stem cells (HSCs) is complex and multi-scale, providing an opportunity for mathematical modeling and simulation to aid in mechanistic understanding and ultimately inform drug development efforts. Historically, mathematical models have been developed that were focused on the development of a subset of cells, but mathematical models that encompass the overall cellular system’s complexity are rarely available. Here, we develop an integrated quantitative systems pharmacology (QSP) model that characterizes multi-organ recapitulation of HSC differentiation by integrating literature models and adding novel features. The result is a more comprehensive representation of mammalian hematopoietic stem cell development. We demonstrate our integrated model can accurately capture the reconstitution of RBCs, B cells, and T cells following HSC transplant in mice. Moreover, the humanized model successfully predicted the reconstitution of granulocytes and lymphocytes  in patients with adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID) who underwent ex-vivo gene therapy. 
 
 
-\includegraphics[width=\textwidth]{../img/Diagram_integration}
+\includegraphics[width= 0.8 \textwidth]{../img/Diagram_integration}
 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \headerbox{Methods}{name=methods,column=0,below=abstract}{
+\footnotesize
 
-% Replace this text with your Methods
-We developed an integrated model that depicts the differentiation of hematopoietic stem cells (HSCs) into erythrocytes, lymphocytes, and granulocytes. The model was built incrementally by incorporating novel physiological-based features from literature while integrating published models [1-4].The resulting model represents multiple organs, including bone marrow, blood, thymus, and other lymphoid tissues. The model was developed using mice data before being scaled to human. 
+We developed an integrated model that depicts the differentiation of hematopoietic stem cells (HSCs) into erythrocytes, lymphocytes, and granulocytes. The model was built incrementally by incorporating novel physiological-based features from literature while integrating published models:
+\begin{itemize}
+%\setlength{\itemindent}{-2em}
+  \item human HSC differentiation into red blood cells (RBCs) [1]
+  \item mouse B cell development [2]
+  \item mouse T cell development [3]
+  \item human naive T cell dynamics model [4]
+\end{itemize}
+
+The model was developed in 4 steps: 
+\begin{itemize}
+  \item Implement an existing human HSC -> RBC differentiation model in [1]
+  \item Scale the HSC -> RBC differentiation model from human to mouse
+  \item Integrate T cells development model from [3], B cells development model from [2], and HSC -> granulocyte differentiation model into the mouse differentiation model 
+  \item Scale the integrated mouse HSC differentiation model to human.
+\end{itemize}
+
+Further parameter tunings were carried out using steady state data (e.g. blood cell count) in mouse and in human. The integrated models for mouse and human were validated using cell reconstitution in peripheral blood after stem cell transplant/ ex-vivo gene therapy. 
 
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \headerbox{References}{name=references,column=0,below=methods}{
-\footnotesize
+\scriptsize	
 [1] Zheng, Bo, et al. "A systems pharmacology model for gene therapy in sickle cell disease." CPT: Pharmacometrics \& Systems Pharmacology 10.7 (2021): 696-708.
 [2] Shahaf, Gitit, et al. "B cell development in the bone marrow is regulated by homeostatic feedback exerted by mature B cells." Frontiers in immunology 7 (2016): 77.
 [3] Thomas-Vaslin, Veronique, et al. "Comprehensive assessment and mathematical modeling of T cell population dynamics and homeostasis." The Journal of Immunology 180.4 (2008): 2240-2250.
@@ -160,39 +180,49 @@ We developed an integrated model that depicts the differentiation of hematopoiet
 
 
 \headerbox{Results}{name=results,span=2,column=1,row=0}{
-% Replace this text with your Results
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Nunc sed blandit libero volutpat
-sed cras. Sit amet est placerat in egestas erat. Amet consectetur adipiscing
-elit duis tristique sollicitudin nibh sit. Risus at ultrices mi tempus imperdiet
-nulla. Mi bibendum neque egestas congue quisque egestas diam in arcu. Mattis
-pellentesque id nibh tortor id aliquet lectus proin nibh. Netus et malesuada
-fames ac turpis egestas integer eget aliquet. 
+\footnotesize
+
+The integrated HSC differentiation model for mouse can be summarized by the figure follow. Briefly, ...
+
+
+\begin{minipage}[b]{0.55\linewidth}
+\centering
+\includegraphics[width=\textwidth]{../img/mouse_full_model.png}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.4\linewidth}
+\centering
+\includegraphics[width=\textwidth]{../img/Diagram_thomas2008.png}
+\end{minipage}
 
 
 
-Auctor urna nunc id cursus metus
-aliquam eleifend mi in. Dolor morbi non arcu risus quis. Faucibus ornare
-suspendisse sed nisi lacus sed viverra tellus. Elementum curabitur vitae nunc
-sed velit dignissim sodales. Aenean sed adipiscing diam donec. Amet facilisis
-magna etiam tempor orci. Penatibus et magnis dis parturient montes nascetur.
-Tristique et egestas quis ipsum suspendisse. Odio pellentesque diam volutpat
-commodo. A scelerisque purus semper eget. Volutpat diam ut venenatis tellus in
-metus.
+The integrated HSC differentiation model for human can be summarized by the figure follow. Briefly, ...
+
+
+\begin{minipage}[b]{0.55\linewidth}
+\centering
+\includegraphics[width=\textwidth]{../img/human_full_structure.png}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.4\linewidth}
+\centering
+\includegraphics[width=\textwidth]{../img/human_naiveT.png}
+\end{minipage}
+
 
 }
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \headerbox{Conclusion}{name=conclusion,span=2,column=1,below=results}{
-% Replace this text with your Conclusions
-Dis parturient montes nascetur ridiculus mus mauris vitae
-ultricies. Vitae elementum curabitur vitae nunc sed velit dignissim sodales.
-Nunc consequat interdum varius sit amet. At elementum eu facilisis sed odio
-morbi quis commodo odio. Ac turpis egestas sed tempus urna et pharetra. Quis
-hendrerit dolor magna eget est lorem ipsum dolor sit. Vestibulum rhoncus est
-pellentesque elit.
+\footnotesize
+Our work has resulted in a more comprehensive representation of mammalian hematopoietic stem cell development than previous partial efforts. Our integrated model is based on physiological understanding and validated with both mouse and human data. The models are implemented in both R and Julia, and the code will be available on GitHub. We believe this integrated model provides a versatile platform for predicting cell reconstitution after HSC transplant or ex-vivo gene therapy. 
+
 }
 
 \end{poster}

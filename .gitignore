@@ -3,3 +3,5 @@ renv
 .Rhistory
 .Rproj*
 .Rproj.user
+poster-A0/*.synctex.gz
+poster-A0/*.log
