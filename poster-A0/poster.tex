@@ -182,7 +182,15 @@ Further parameter tunings were carried out using steady state data (e.g. blood c
 \headerbox{Results}{name=results,span=2,column=1,row=0}{
 \footnotesize
 
-The integrated HSC differentiation model for mouse can be summarized by the figure follow. Briefly, ...
+The integrated HSC differentiation model for mouse can be summarized by the figure follow. 
+Briefly, the long-term hematopoietic stem cells (LT-HSC) is capable of self-renewal and can differentiate to be short-term hematopoietic stem cells (ST-HSC). 
+ST-HSC can differentiate to be multipottrnt ptogrnitor cells (MPP). 
+MPP can differentiate to be common myeloid progenitor (CMP) or common lymphoid progenitor (CLP). 
+CMP can differentitiate to be burst forming unit-erythroid (BFU-E) and granulocyte-monocyte progenitors (GMP). 
+BFU-E can differentiate to be colony forming unit-erythroid (CFU-E), then reticulocytes (RET) and red blood cells (RBC). Furthermore, hemoglobin (Hb) can be synthesized in RETs and RBCs, and the oxygen level in blood imposes a negative feedback on CFU-E amplification. 
+The erythrocytes differentiation model was taken from [1]  and scaled from human to mouse by reparameterize of mean residence time and amplification number is based on rates and observations provided in Busch et al., Nature. 2015, Putten and Croon, Blood. 1958, Ney Curr Opin Hematol. 2011, and Palis, Front Physio. 2014.  
+CLP can further differentiate into B cells and T cells in bone marrow, spleen (diagram in middle panel, model obtained from [2]) and thymus (diagram in right panel, model obtained from [3]). 
+GMP can further differentiate to be granulocytes (GM). 
 
 
 \begin{minipage}[b]{0.55\linewidth}
@@ -192,12 +200,53 @@ The integrated HSC differentiation model for mouse can be summarized by the figu
 \hspace{0.5cm}
 \begin{minipage}[b]{0.4\linewidth}
 \centering
-\includegraphics[width=\textwidth]{../img/Diagram_thomas2008.png}
+\includegraphics[width=\textwidth]{../img/Diagram_B_T.png}
 \end{minipage}
 
+The steady state of this model simulation compared well with mouse physiological data reported in literature. 
+Furthermore, we demonstrate the model can predict the reconsititution dynamics of RBC, B cells, and T cells after HSC transplant in mouse published in Busch et al., Nature. 2015.  
+
+\begin{minipage}[ht]{0.42\linewidth}
+\begin{center}
+\begin{tabular}{ c c c }
+Cell type & Simulated & Reference \\ 
+\hline
+MPP & 60k & 75k-92k \\  
+CMP & 2M & 755k- 3M  \\
+GMP & 757k & 1M  \\  
+GM & 8.4k/uL & 1.95-12.01k/uL \\  
+RET & 498k/uL & 200 - 500k/uL   \\    
+RBC & 9.9M/uL & 10.2M/uL   \\ 
+blood Hb & 13.2g/dL & 13.6 - 16.4g/dL   \\ 
+Hb in RBC & 261g/L & 270-330g/L  \\ 
+lymphocyte & 1.8k/uL & 0.12 - 24k/uL  \\ 
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+\hspace{0.2cm}
+\begin{minipage}[ht]{0.5\linewidth}
+\includegraphics[width=\textwidth]{../img/mouse_RBC_T_B_HSCT.png}
+\end{minipage}
+
+Furthermore, the model was adapted to predict the ex-vivo gene therapy result on young mouse model with adenosine deaminase deficiency severe combined immunodeficiency (ADA-SCID). 
+The model was adjusted to be more lymphoid-based (Young et al., J Exp Med. 2016), higher DP death rate (Whitmore and Gasper et al., Front Immunol., 2016), and higher mature B cell death rate in spleen and in blood (Whitmore and Gasper et al., Front Immunol., 2016, Blackburn and Kellems et al., Adv Immunol., 2005).
+Assuming the radiation conditioning of Ada -/- mice resulted in 30\% loss of all dividing/ differentiating progenitors in the bone marrow, and 80\% loss in thymus, our model produce simulation results that is somewhat comparable to what was reported in Carbonaro et al., Blood., 2012. 
 
 
-The integrated HSC differentiation model for human can be summarized by the figure follow. Briefly, ...
+\begin{minipage}[b]{0.55\linewidth}
+\centering
+\includegraphics[width= 0.8 \textwidth]{../img/mouse_adascidgtsimul.png}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.4\linewidth}
+\centering
+\end{minipage}
+	
+
+
+
+The integrated HSC differentiation model for human can be summarized by the figure follow. Briefly, the model was scaled from mouse to human and incorporated naive T cell dynamics in lymph nodes (LN) and peripheral tissues from [4].  
 
 
 \begin{minipage}[b]{0.55\linewidth}
