@@ -5,3 +5,5 @@ renv
 .Rproj.user
 poster-A0/*.synctex.gz
 poster-A0/*.log
+poster-A0/*.fdb_latexmk
+poster-A0/*.fls
