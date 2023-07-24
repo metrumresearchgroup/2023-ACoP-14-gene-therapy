@@ -12,6 +12,8 @@
 \usepackage{graphicx}
 \usepackage{setspace}
 \spacing{1}
+\usepackage{anyfontsize}
+
 
 \usepackage[bitstream-charter]{mathdesign}
 \usepackage[T1]{fontenc}
@@ -162,7 +164,7 @@ The model was developed in 4 steps:
   \item Scale the integrated mouse HSC differentiation model to human.
 \end{itemize}
 
-Further parameter tunings were carried out using steady state data (e.g. blood cell count) in mouse and in human. The integrated models for mouse and human were validated using cell reconstitution in peripheral blood after stem cell transplant/ ex-vivo gene therapy. 
+Further parameter tunings were carried out using steady state data (e.g. cell ratios in blood or other organs) in mouse and in human. The integrated models for mouse and human were validated using cell reconstitution in peripheral blood after stem cell transplant/ ex-vivo gene therapy. 
 
 }
 
@@ -174,7 +176,16 @@ Further parameter tunings were carried out using steady state data (e.g. blood c
 [2] Shahaf, Gitit, et al. "B cell development in the bone marrow is regulated by homeostatic feedback exerted by mature B cells." Frontiers in immunology 7 (2016): 77.
 [3] Thomas-Vaslin, Veronique, et al. "Comprehensive assessment and mathematical modeling of T cell population dynamics and homeostasis." The Journal of Immunology 180.4 (2008): 2240-2250.
 [4] Sové, Richard J., et al. "QSP‐IO: a quantitative systems pharmacology toolbox for mechanistic multiscale modeling for Immuno‐oncology applications." CPT: pharmacometrics \& systems pharmacology 9.9 (2020): 484-497.
+
+
 }
+
+
+\headerbox{Source code}{name=code,column=0,below=references}{
+\includegraphics[width= 0.1\textwidth]{../img/repo_qr_code.png}
+}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -208,9 +219,11 @@ Furthermore, we demonstrate the model can predict the reconsititution dynamics o
 
 \begin{minipage}[ht]{0.42\linewidth}
 \begin{center}
+\fontsize{6.5pt}{6.5pt}\selectfont
 \begin{tabular}{ c c c }
 Cell type & Simulated & Reference \\ 
 \hline
+\scriptsize
 MPP & 60k & 75k-92k \\  
 CMP & 2M & 755k- 3M  \\
 GMP & 757k & 1M  \\  
@@ -229,25 +242,7 @@ lymphocyte & 1.8k/uL & 0.12 - 24k/uL  \\
 \includegraphics[width=\textwidth]{../img/mouse_RBC_T_B_HSCT.png}
 \end{minipage}
 
-Furthermore, the model was adapted to predict the ex-vivo gene therapy result on young mouse model with adenosine deaminase deficiency severe combined immunodeficiency (ADA-SCID). 
-The model was adjusted to be more lymphoid-based (Young et al., J Exp Med. 2016), higher DP death rate (Whitmore and Gasper et al., Front Immunol., 2016), and higher mature B cell death rate in spleen and in blood (Whitmore and Gasper et al., Front Immunol., 2016, Blackburn and Kellems et al., Adv Immunol., 2005).
-Assuming the radiation conditioning of Ada -/- mice resulted in 30\% loss of all dividing/ differentiating progenitors in the bone marrow, and 80\% loss in thymus, our model produce simulation results that is somewhat comparable to what was reported in Carbonaro et al., Blood., 2012. 
-
-
-\begin{minipage}[b]{0.55\linewidth}
-\centering
-\includegraphics[width= 0.8 \textwidth]{../img/mouse_adascidgtsimul.png}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}[b]{0.4\linewidth}
-\centering
-\end{minipage}
-	
-
-
-
-The integrated HSC differentiation model for human can be summarized by the figure follow. Briefly, the model was scaled from mouse to human and incorporated naive T cell dynamics in lymph nodes (LN) and peripheral tissues from [4].  
-
+The integrated HSC differentiation model for human can be summarized by the figure follow. Briefly, the model was scaled from mouse to human. Especially, the scaling of bone marrow B cell capacity was scaled based on cellularity. In addition,naive T cell dynamics in lymph nodes (LN) and peripheral tissues from [4] was also incorporated to capture the different mechanism in T cell maintenance: in mouse, thymic output is the main source of naive T cell maintenance; in human, naive T cell proliferation in peripheral tissue and blood have a prominant role (Famili et al., Future Sci OA., 2017, Spits, Curr Opin Immunol., 1994). 
 
 \begin{minipage}[b]{0.55\linewidth}
 \centering
@@ -260,10 +255,54 @@ The integrated HSC differentiation model for human can be summarized by the figu
 \end{minipage}
 
 
+The model was firstly used to simulate steady state blood cell, hemoglobin, and immune cell in both healthy situation and patients with adenosine deaminase deficiency severe combined immunodeficiency (ADA-SCID). Note for those with ADA-SCID, the death rate of DP cells in thymus and splenic mature B cells were adjusted based on data obtained from mouse (Whitmore and Gasper et al., Front Immunol., 2016, Blackburn and Kellems et al., J Exp Med., 2000, Moretti et al., Sci Rep., 2021). 
+
+\begin{minipage}[ht]{0.4\linewidth}
+\begin{center}
+\fontsize{6.5pt}{6.5pt}\selectfont
+\begin{tabular}{ c c c }
+Cell type & Simulated & Reference \\ 
+\hline
+\scriptsize
+RBC (/uL) & 3.9M & 4M \\  
+Hb (g/dL) & 13.2 & 12-15  \\
+thymic output (/day) & 32M & 10M-2700M \\  
+granulocyte (/uL) & 1.2k & 1k-8k   \\ 
+T cell (heathy) (/ul) & 662 & 1243   \\ 
+T cell (ADA-SCID) (/ul) & 149 & 138  \\ 
+B cell (healthy) (/uL) & 137 & 101 \\
+B cell (ADA-SCID) (/uL) & 61 & 0  \\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+\hspace{0.2cm}
+\begin{minipage}[ht]{0.3\linewidth}
+\end{minipage}
+
+
+The model was used to simulate blood cell and hemoglobin reconstitution after a patient treated for sickle cell disease (SCD), as well as immune cell reconstitution for a patient treated for ADA-SCID. 
+
+The simulated result of SCD treatment was compared to data published in Ribiel et al., N Engl J Med., 2017 (left panel). The model captured the lowering of RET count up to 6 months after the gene therapy, as well as the increase of HbA$^{T87Q}$, a Hb that only exists in transduced cells. The mismatch in HbA and RBC count at 3 months after the gene therapy could be due to the transfusion received by the patient. 
+
+
+The simulated result of ADA-SCID patient was compared to a patient reported in Aiuti et al., N Engl J Med., 2009 (right panel). Note the total amount of CD34+ cells infused into this patient was estimated based on the patient's age and gender (seven-month old female). The simulated result on B cell and T cell reconstitution matched up well with observed data. The simulation on granulocytes matched less well in the later years. It may suggest the myeloid arm of this model could be further refined. 
+
+\begin{minipage}[b]{0.47\linewidth}
+\centering
+\includegraphics[width=\textwidth]{../img/human_erythroid_validation.png}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.47\linewidth}
+\centering
+\includegraphics[width=\textwidth]{../img/human_ada_scid_GT.png}
+\end{minipage}
+
+
+
+
+
 }
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -271,7 +310,6 @@ The integrated HSC differentiation model for human can be summarized by the figu
 \headerbox{Conclusion}{name=conclusion,span=2,column=1,below=results}{
 \footnotesize
 Our work has resulted in a more comprehensive representation of mammalian hematopoietic stem cell development than previous partial efforts. Our integrated model is based on physiological understanding and validated with both mouse and human data. The models are implemented in both R and Julia, and the code will be available on GitHub. We believe this integrated model provides a versatile platform for predicting cell reconstitution after HSC transplant or ex-vivo gene therapy. 
-
 }
 
 \end{poster}
