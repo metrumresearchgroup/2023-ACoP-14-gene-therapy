@@ -136,10 +136,7 @@
 \headerbox{Abstract}{name=abstract,column=0,row=0}{
 \footnotesize
 
-The differentiation of mammalian hematopoietic stem cells (HSCs) is complex and multi-scale, providing an opportunity for mathematical modeling and simulation to aid in mechanistic understanding and ultimately inform drug development efforts. Historically, mathematical models have been developed that were focused on the development of a subset of cells, but mathematical models that encompass the overall cellular system’s complexity are rarely available. Here, we develop an integrated quantitative systems pharmacology (QSP) model that characterizes multi-organ recapitulation of HSC differentiation by integrating literature models and adding novel features. The result is a more comprehensive representation of mammalian hematopoietic stem cell development. We demonstrate our integrated model can accurately capture the reconstitution of RBCs, B cells, and T cells following HSC transplant in mice. Moreover, the humanized model successfully predicted the reconstitution of granulocytes and lymphocytes  in patients with adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID) who underwent ex-vivo gene therapy. 
-
-
-\includegraphics[width= 0.8 \textwidth]{../img/Diagram_integration}
+The differentiation of mammalian hematopoietic stem cells (HSCs) is complex and multi-scale, providing an opportunity for mathematical modeling and simulation to aid in mechanistic understanding, and ultimately, to inform drug development efforts. Historically, mathematical models that have been developed were focused on the development of a subset of cells, but mathematical models that encompass the overall cellular system’s complexity are rarely available. Here, we develop an integrated quantitative systems pharmacology (QSP) model that characterizes multi-organ recapitulation of HSC differentiation by integrating literature models and adding novel features. The result is a more comprehensive representation of mammalian HSC development. We demonstrate our integrated model can accurately capture the reconstitution of RBCs, B cells, and T cells following HSC transplant in mice, and predict the reconstitution of granulocytes and lymphocytes in patients with adenosine deaminase‐deficient severe combined immunodeficiency (ADA-SCID) who underwent ex-vivo gene therapy. 
 
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,10 +144,10 @@ The differentiation of mammalian hematopoietic stem cells (HSCs) is complex and 
 \headerbox{Methods}{name=methods,column=0,below=abstract}{
 \footnotesize
 
-We developed an integrated model that depicts the differentiation of hematopoietic stem cells (HSCs) into erythrocytes, lymphocytes, and granulocytes. The model was built incrementally by incorporating novel physiological-based features from literature while integrating published models:
+We developed an integrated model that depicted the differentiation of hematopoietic stem cells (HSCs) into erythrocytes, lymphocytes, and granulocytes. The model was built incrementally by incorporating novel physiological-based features based on literature data while the following integrating published models:
 \begin{itemize}
 %\setlength{\itemindent}{-2em}
-  \item human HSC differentiation into red blood cells (RBCs) [1]
+  \item human HSC erythroid differentiation [1]
   \item mouse B cell development [2]
   \item mouse T cell development [3]
   \item human naive T cell dynamics model [4]
@@ -159,12 +156,16 @@ We developed an integrated model that depicts the differentiation of hematopoiet
 The model was developed in 4 steps: 
 \begin{itemize}
   \item Implement an existing human HSC -> RBC differentiation model in [1]
-  \item Scale the HSC -> RBC differentiation model from human to mouse
-  \item Integrate T cells development model from [3], B cells development model from [2], and HSC -> granulocyte differentiation model into the mouse differentiation model 
-  \item Scale the integrated mouse HSC differentiation model to human.
+  \item Scale the HSC -> RBC differentiation model from human to mouse based on mouse physiology
+  \item Integrate T cells development model from [3], B cells development model from [2], and HSC -> granulocyte differentiation model into the mouse HSC differentiation model.
+  \item Scale the integrated mouse HSC differentiation model to human based on human physiology
 \end{itemize}
 
-Further parameter tunings were carried out using steady state data (e.g. cell ratios in blood or other organs) in mouse and in human. The integrated models for mouse and human were validated using cell reconstitution in peripheral blood after stem cell transplant/ ex-vivo gene therapy. 
+\includegraphics[width= 0.8 \textwidth]{../img/Diagram_integration}
+
+
+Parameter tuning were carried out to help harmonize the difference across models.
+The integrated models for mouse and human were validated using cell reconstitution in peripheral blood after stem cell transplant/ ex-vivo gene therapy. 
 
 }
 
@@ -193,16 +194,16 @@ Further parameter tunings were carried out using steady state data (e.g. cell ra
 \headerbox{Results}{name=results,span=2,column=1,row=0}{
 \footnotesize
 
-The integrated HSC differentiation model for mouse can be summarized by the figure follow. 
-Briefly, the long-term hematopoietic stem cells (LT-HSC) is capable of self-renewal and can differentiate to be short-term hematopoietic stem cells (ST-HSC). 
-ST-HSC can differentiate to be multipottrnt ptogrnitor cells (MPP). 
-MPP can differentiate to be common myeloid progenitor (CMP) or common lymphoid progenitor (CLP). 
-CMP can differentitiate to be burst forming unit-erythroid (BFU-E) and granulocyte-monocyte progenitors (GMP). 
-BFU-E can differentiate to be colony forming unit-erythroid (CFU-E), then reticulocytes (RET) and red blood cells (RBC). Furthermore, hemoglobin (Hb) can be synthesized in RETs and RBCs, and the oxygen level in blood imposes a negative feedback on CFU-E amplification. 
-The erythrocytes differentiation model was taken from [1]  and scaled from human to mouse by reparameterize of mean residence time and amplification number is based on rates and observations provided in Busch et al., Nature. 2015, Putten and Croon, Blood. 1958, Ney Curr Opin Hematol. 2011, and Palis, Front Physio. 2014.  
-CLP can further differentiate into B cells and T cells in bone marrow, spleen (diagram in middle panel, model obtained from [2]) and thymus (diagram in right panel, model obtained from [3]). 
-GMP can further differentiate to be granulocytes (GM). 
-
+The integrated HSC differentiation model for mouse can be summarized by the figures follow. The arrows represent direction of cell differentiation, proliferation, trafficking, and death. 
+The long-term hematopoietic stem cells (LT-HSC) is capable of self-renewal and can differentiate to short-term hematopoietic stem cells (ST-HSC). 
+ST-HSC can differentiate to multipotent progenitor cells (MPP). 
+MPP can differentiate to common myeloid progenitor (CMP) and common lymphoid progenitor (CLP). 
+CMP can differentitiate to burst forming unit-erythroid (BFU-E) and granulocyte-monocyte progenitors (GMP). 
+BFU-E can further differentiate to colony forming unit-erythroid (CFU-E), then reticulocytes (RET) and red blood cells (RBC). 
+Furthermore, hemoglobin (Hb) can be synthesized in RETs and RBCs. The concentration of Hb in blood determines the oxygen level in blood, and subsequently imposes a negative feedback on CFU-E amplification. 
+The erythrocytes differentiation submodel was taken from [1] (left panel) and scaled from human to mouse by reparameterizing mean residence time and amplification number using physiologically informed values. 
+CLP is a novel feature we add to link the HSC differentiation with B cell and T cell development taken from [2] (diagram in middle panel) and [3] (diagram in right panel), respectively. 
+GMP and the granulocytes (GM) it differentiate to are the novel features we introduced to this integrated model. 
 
 \begin{minipage}[b]{0.55\linewidth}
 \centering
@@ -214,8 +215,7 @@ GMP can further differentiate to be granulocytes (GM).
 \includegraphics[width=\textwidth]{../img/Diagram_B_T.png}
 \end{minipage}
 
-The steady state of this model simulation compared well with mouse physiological data reported in literature. 
-Furthermore, we demonstrate the model can predict the reconsititution dynamics of RBC, B cells, and T cells after HSC transplant in mouse published in Busch et al., Nature. 2015.  
+The integrated model for mouse can predict the steady state mouse cell count, as well as reconstitutions of RBC, B cells, and T cells after HSC transplant in mouse (Busch et al., Nature. 2015).  
 
 \begin{minipage}[ht]{0.42\linewidth}
 \begin{center}
@@ -242,7 +242,9 @@ lymphocyte & 1.8k/uL & 0.12 - 24k/uL  \\
 \includegraphics[width=\textwidth]{../img/mouse_RBC_T_B_HSCT.png}
 \end{minipage}
 
-The integrated HSC differentiation model for human can be summarized by the figure follow. Briefly, the model was scaled from mouse to human. Especially, the scaling of bone marrow B cell capacity was scaled based on cellularity. In addition,naive T cell dynamics in lymph nodes (LN) and peripheral tissues from [4] was also incorporated to capture the different mechanism in T cell maintenance: in mouse, thymic output is the main source of naive T cell maintenance; in human, naive T cell proliferation in peripheral tissue and blood have a prominant role (Famili et al., Future Sci OA., 2017, Spits, Curr Opin Immunol., 1994). 
+The integrated HSC differentiation model for human can be summarized by the figure follow. 
+Briefly, the model was scaled from mouse to human based on physiology. Especially, the scaling of bone marrow B cell capacity was scaled based on cellularity. 
+In addition,naive T cell dynamics in lymph nodes (LN) and peripheral tissues from [4] was also incorporated to capture the different mechanism for naive T cell maintenance: in mouse, thymic output is the main source; in human, naive T cell proliferation in peripheral tissue and blood has a prominent role (Famili et al., Future Sci OA., 2017, Spits, Curr Opin Immunol., 1994). 
 
 \begin{minipage}[b]{0.55\linewidth}
 \centering
@@ -254,10 +256,10 @@ The integrated HSC differentiation model for human can be summarized by the figu
 \includegraphics[width=\textwidth]{../img/human_naiveT.png}
 \end{minipage}
 
+The integrated model for human can recapitulate healthy and those with adenosine deaminase deficiency severe combined immunodeficiency (ADA-SCID). 
+The death rates for double positivr cells in thymus and splenic mature B cells were adjusted to account for ADA-SCID (Whitmore and Gasper, Front Immunol., 2016).
 
-The model was firstly used to simulate steady state blood cell, hemoglobin, and immune cell in both healthy situation and patients with adenosine deaminase deficiency severe combined immunodeficiency (ADA-SCID). Note for those with ADA-SCID, the death rate of DP cells in thymus and splenic mature B cells were adjusted based on data obtained from mouse (Whitmore and Gasper et al., Front Immunol., 2016, Blackburn and Kellems et al., J Exp Med., 2000, Moretti et al., Sci Rep., 2021). 
-
-\begin{minipage}[ht]{0.4\linewidth}
+\begin{minipage}[ht]{1.\linewidth}
 \begin{center}
 \fontsize{6.5pt}{6.5pt}\selectfont
 \begin{tabular}{ c c c }
@@ -277,16 +279,17 @@ B cell (ADA-SCID) (/uL) & 61 & 0  \\
 \end{center}
 \end{minipage}
 \hspace{0.2cm}
-\begin{minipage}[ht]{0.3\linewidth}
+\begin{minipage}[ht]{0.\linewidth}
 \end{minipage}
 
+The integrated human model can recapitulate blood cell and hemoglobin reconstitution after gene therapy in those with sickle cell disease (SCD) (left panel, data obtained from Ribiel et al., N Engl J Med., 2017). 
+The model captured the lowering of RET count up to 6 months after the gene therapy, as well as the increase of HbA$^{T87Q}$, a Hb that only exists in transduced cells.
+Thee mismatch in HbA and RBC count at 3 months after the gene therapy could be due to the transfusion received by the patient.
 
-The model was used to simulate blood cell and hemoglobin reconstitution after a patient treated for sickle cell disease (SCD), as well as immune cell reconstitution for a patient treated for ADA-SCID. 
-
-The simulated result of SCD treatment was compared to data published in Ribiel et al., N Engl J Med., 2017 (left panel). The model captured the lowering of RET count up to 6 months after the gene therapy, as well as the increase of HbA$^{T87Q}$, a Hb that only exists in transduced cells. The mismatch in HbA and RBC count at 3 months after the gene therapy could be due to the transfusion received by the patient. 
-
-
-The simulated result of ADA-SCID patient was compared to a patient reported in Aiuti et al., N Engl J Med., 2009 (right panel). Note the total amount of CD34+ cells infused into this patient was estimated based on the patient's age and gender (seven-month old female). The simulated result on B cell and T cell reconstitution matched up well with observed data. The simulation on granulocytes matched less well in the later years. It may suggest the myeloid arm of this model could be further refined. 
+The integrated human model can also recapitulate immune cell reconstitution after gene therapy in those with ADA-SCID (right panel, data obtained from Aiuti et al., N Engl J Med., 2009). 
+Note the total amount of CD34+ cells infused into this patient was estimated based on the patient's age and gender (seven-month old female). 
+Reconstitution of granulocytes matched less well in the later years compared to B cells and T cells. 
+It may suggest the myeloid arm of this model could be further refined.
 
 \begin{minipage}[b]{0.47\linewidth}
 \centering
@@ -299,9 +302,6 @@ The simulated result of ADA-SCID patient was compared to a patient reported in A
 \end{minipage}
 
 
-
-
-
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -309,7 +309,10 @@ The simulated result of ADA-SCID patient was compared to a patient reported in A
 
 \headerbox{Conclusion}{name=conclusion,span=2,column=1,below=results}{
 \footnotesize
-Our work has resulted in a more comprehensive representation of mammalian hematopoietic stem cell development than previous partial efforts. Our integrated model is based on physiological understanding and validated with both mouse and human data. The models are implemented in both R and Julia, and the code will be available on GitHub. We believe this integrated model provides a versatile platform for predicting cell reconstitution after HSC transplant or ex-vivo gene therapy. 
+Through integrating existing models and adding novel features, we developed mathematical models that present a more comprehensive representation of mammalian hematopoietic stem cell development than previous partial efforts. 
+Our integrated models are based on physiological understanding of mouse and human, and were validated accordingly.
+We demonstrated our models could successfully predict cell reconstitution after ex-vivo gene therapy or HSC transplant. 
+We believe our models provide a versatile platform for further development to inform drug development for ex-vivo gene therapy and HSC transplant. 
 }
 
 \end{poster}
